@@ -1,0 +1,128 @@
+================================================================================
+BỘ CÔNG THỨC TOÁN HỌC CHUẨN LATEX - ĐỀ ÁN FROSTLINK (MỤC 5.1)
+Cuộc thi: Vietnam Young Logistics Talents (VYLT) 2026
+================================================================================
+
+HƯỚNG DẪN SỬ DỤNG NHANH:
+1. Trong Microsoft Word:
+   - Nhấn tổ hợp phím: Alt + = (mở khung gõ công thức Equation).
+   - Chọn chế độ nhập là "LaTeX" trên thanh Ribbon Equation.
+   - Dán (Paste) đoạn mã LaTeX bên dưới vào khung.
+   - Nhấn phím Enter (hoặc bấm nút "Convert" -> Professional). Word sẽ tự động chuyển thành công thức toán học chuyên nghiệp (OMML native).
+2. Trong Overleaf / Báo cáo LaTeX / Beamer Slides:
+   - Copy trực tiếp vào môi trường equation hoặc \[ ... \].
+3. Trong Markdown:
+   - Dán vào giữa 2 dấu $$ ... $$.
+
+--------------------------------------------------------------------------------
+1. HÀM KINH TẾ LƯỢNG DỰ BÁO SẢN LƯỢNG THU HOẠCH (OLS ECONOMETRIC MODEL)
+--------------------------------------------------------------------------------
+
+[1.1] Phương trình tổng quát lý thuyết (Marginal Effects):
+\[
+\hat{Y}_t = \beta_0 + \beta_1 \cdot \text{Temp}_t - \beta_2 \cdot \text{Rain}_t + \beta_3 \cdot \text{Ripe}_t + \beta_4 \cdot \text{Order}_t + \beta_5 \cdot \text{PeakDay}_t + \varepsilon_t
+\]
+
+Giải thích biến số:
+- \hat{Y}_t: Sản lượng thu hoạch dự báo tại ngày t (Tấn/ngày).
+- \text{Temp}_t: Nhiệt độ môi trường (°C). Hệ số \beta_1 mang dấu (+) do nhiệt độ kích thích quả chín nhanh.
+- -\text{Rain}_t: Lượng mưa trong ngày (mm). Hệ số -\beta_2 mang dấu (-) do mưa bão nông dân ngừng bẻ cành.
+- \text{Ripe}_t: Tỷ lệ quả chín đỏ (%). Hệ số \beta_3 mang dấu (+) do quả chín bắt buộc phải thu hoạch trong 24-48h.
+- \text{Order}_t: Đơn hàng xuất khẩu đã xác nhận (Tấn). Hệ số \beta_4 mang dấu (+) đại diện cho lực kéo thị trường (Demand-pull).
+- \text{PeakDay}_t: Biến giả (1 nếu là ngày Thứ Năm/Thứ Sáu đóng hàng đi cửa khẩu cuối tuần, 0 nếu là ngày thường).
+- \varepsilon_t: Sai số ngẫu nhiên.
+
+
+[1.2] Phương trình thực nghiệm ước lượng từ dữ liệu thực tế Lục Ngạn:
+\[
+\hat{Y}_t = 258.76 - 6.64 \cdot \text{Temp}_t + 0.08 \cdot \text{Rain}_t - 45.15 \cdot \text{Ripe}_t + 1.00 \cdot \text{Order}_t + 8.72 \cdot \text{PeakDay}_t \quad (R^2 = 0.616)
+\]
+
+
+--------------------------------------------------------------------------------
+2. CÔNG THỨC QUY ĐỔI TÁC NGHIỆP LOGISTICS (CEILING FUNCTION CHO CONT 40FT)
+--------------------------------------------------------------------------------
+
+[2.1] Quy đổi từ sản lượng (tấn) sang số lượng vỏ Container 40ft (N_t):
+\[
+N_{\text{trucks}, t} = \left\lceil \frac{Y_t \times \alpha_t}{C_{\text{eff}}} \right\rceil
+\]
+
+Giải thích tham số tác nghiệp:
+- N_{\text{trucks}, t}: Số lượng container 40ft lạnh cần điều phối trong ngày t (xe).
+- \lceil \dots \rceil: Ký hiệu hàm trần (Ceiling function), làm tròn lên số nguyên dương gần nhất.
+- \alpha_t: Tỷ lệ hàng đạt phẩm cấp xuất khẩu bắt buộc đi chuỗi lạnh (\alpha_t \approx 0.80 - 0.85).
+- C_{\text{eff}}: Tải trọng hữu dụng thực tế của Container 40 feet lạnh (C_{\text{eff}} = 17.2 Tấn/cont, đã trừ 4.5% dung tích tuần hoàn gió lạnh theo khảo sát nhà xe Treviet).
+
+
+--------------------------------------------------------------------------------
+3. THUẬT TOÁN PHÂN BỔ CÔNG SUẤT 3 LỚP (3-TIER CAPACITY ALLOCATION)
+--------------------------------------------------------------------------------
+
+[3.1] Phân bổ Lớp 1 (Firm Booking - Cam kết cứng 70%):
+\[
+N_{1, t} = \text{round}\left(N_{\text{pred}, t} \times 70\%\right)
+\]
+
+[3.2] Phân bổ Lớp 2 (Flex Option - Quyền chọn linh hoạt 20%):
+\[
+N_{2, t} = \min\left(\left\lceil N_{\text{pred}, t} \times 20\%\right\rceil, \; \max\left(0, \; N_{\text{pred}, t} - N_{1, t}\right)\right)
+\]
+
+[3.3] Phân bổ Lớp 3 (Spot Market - Giao ngay khi biến động thực tế vượt dự báo):
+\[
+N_{3, t} = \max\left(0, \; N_{\text{actual}, t} - N_{1, t} - N_{2, \text{run}, t}\right)
+\]
+
+[3.4] Cơ chế kích hoạt quyền chọn Hủy Lớp 2 khi có bão (Rain >= 50mm):
+\[
+N_{2, \text{cancel}, t} = \begin{cases}
+N_{2, t} & \text{khi } \text{Rain}_t \ge 50\,\text{mm} \\
+0 & \text{khi } \text{Rain}_t < 50\,\text{mm}
+\end{cases}
+\]
+
+
+--------------------------------------------------------------------------------
+4. CHỈ SỐ ĐO LƯỜNG HIỆU QUẢ DỰ BÁO (KPI METRICS)
+--------------------------------------------------------------------------------
+
+[4.1] Sai số tuyệt đối trung bình về số xe (Truck MAE):
+\[
+\text{Truck\_MAE} = \frac{1}{n} \sum_{t=1}^{n} \left| N_t - \hat{N}_t \right| \quad (\text{đơn vị: Xe/ngày})
+\]
+
+[4.2] Sai số phần trăm có trọng số về số xe (Truck WAPE):
+\[
+\text{Truck\_WAPE} = \frac{\sum_{t=1}^{n} \left| N_t - \hat{N}_t \right|}{\sum_{t=1}^{n} N_t} \times 100\%
+\]
+
+[4.3] Sai số sản lượng tuyệt đối trung bình (Yield MAE):
+\[
+\text{MAE} = \frac{1}{n} \sum_{t=1}^{n} \left| Y_t - \hat{Y}_t \right| \quad (\text{đơn vị: Tấn/ngày})
+\]
+
+
+--------------------------------------------------------------------------------
+5. HÀM TỔN THẤT KINH TẾ BÀI TOÁN NEWSVENDOR (RISK COST FUNCTION)
+--------------------------------------------------------------------------------
+
+[5.1] Tổng chi phí rủi ro chuỗi lạnh vụ mùa:
+\[
+\text{Total\_Cost} = \sum_{t=1}^{n} \left[ C_{\text{over}} \cdot \max(0, \, U_t - J_t) + C_{\text{under}} \cdot \max(0, \, J_t - U_t) + \text{Penalty}_{L2, t} \right]
+\]
+
+Trong đó:
+- U_t: Số lượng xe được điều phối đến bãi tập kết trong ngày t.
+- J_t: Nhu cầu xe thực tế phát sinh trong ngày t.
+- C_{\text{over}}: Chi phí phạt xe rỗng nằm bãi do thừa xe = 2.700.000 VNĐ/xe (30% cước chạy rỗng theo phỏng vấn nhà xe Treviet).
+- C_{\text{under}}: Tổn thất khi thiếu xe lạnh = 6.000.000 VNĐ/xe (2.7 triệu cước ép giờ cao điểm + 3.3 triệu do 1 tấn vải chờ xe phơi nắng mất 25% giá trị xuất khẩu).
+- \text{Penalty}_{L2, t}: Tiền cọc hủy xe Lớp 2 trước 24h = 1.800.000 VNĐ/xe (20% cọc giữ chỗ).
+
+[5.2] Bất đẳng thức điều kiện kinh tế vi mô cốt lõi:
+\[
+\text{Deposit}_{L2} \; (1.8\,\text{tr}) \; < \; C_{\text{over}} \; (2.7\,\text{tr}) \; < \; C_{\text{under}} \; (6.0\,\text{tr})
+\]
+Ý nghĩa kinh tế:
+Mô hình chứng minh việc chủ động mất 1.8 triệu tiền cọc Lớp 2 để hủy xe trước ngày bão luôn tiết kiệm hơn việc để xe chạy rỗng đến bãi bị phạt 2.7 triệu, và bảo vệ nông sản tránh thiệt hại 6.0 triệu do thiếu xe.
+================================================================================
