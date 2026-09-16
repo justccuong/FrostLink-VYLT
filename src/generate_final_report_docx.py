@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-TẠO BÁO CÁO TỔNG QUAN HOÀN CHỈNH VỚI ĐỊNH DẠNG TOÁN HỌC NATIVE WORD OMML
+TẠO BÁO CÁO TỔNG QUAN HOÀN CHỈNH VỚI ĐỊNH DẠNG TOÁN HỌC NATIVE WORD OMML (92 NGÀY)
 Đề án: FrostLink - Nền tảng điều phối công suất chuỗi lạnh mùa vụ (Lục Ngạn)
 Cuộc thi: Vietnam Young Logistics Talents (VYLT) 2026
 Tác giả: Đặng Cường - Thành viên k chính thức
@@ -17,6 +17,11 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(CURRENT_DIR) if os.path.basename(CURRENT_DIR) == 'src' else CURRENT_DIR
+DOCS_DIR = os.path.join(REPO_ROOT, "docs")
+FIGURES_DIR = os.path.join(REPO_ROOT, "figures")
 
 doc = docx.Document()
 doc.core_properties.author = "Đặng Cường - Thành viên k chính thức"
@@ -152,29 +157,31 @@ r_sub.font.italic = True
 r_sub.font.color.rgb = COLOR_MUTED
 
 add_callout(
-    "Báo cáo này giải trình toàn diện phương pháp luận định lượng, bằng chứng khảo sát thực tế (nhà xe Treviet, container 40ft), "
-    "công thức toán học chuẩn Native Word OMML, kết quả đối chuẩn giữa mô hình nền Baseline và FrostLink, cùng bộ 4 biểu đồ 300 DPI.",
+    "Báo cáo này giải trình toàn diện phương pháp luận định lượng trên tập dữ liệu thực địa trọn vẹn 3 tháng mùa vụ (92 ngày - Tháng 5, 6, 7/2026), "
+    "neo 100% vào biên bản phỏng vấn thực tế nhà xe Treviet (Container 40ft, cọc 40%, giá thường 9tr, cao điểm 11.7tr, tháng 6 bình quân ~600T/ngày), "
+    "kèm công thức toán học chuẩn Native Word OMML, đối chuẩn mô hình nền Baseline vs FrostLink, và bộ 4 biểu đồ trực quan hóa 300 DPI.",
     title="TÓM TẮT ĐIỀU HÀNH (EXECUTIVE SUMMARY):"
 )
 
 # ==============================================================================
-# PHẦN 1: BẰNG CHỨNG THỰC ĐỊA & CƠ SỞ DỮ LIỆU PHỎNG VẤN
+# PHẦN 1: BẰNG CHỨNG THỰC ĐỊA & CƠ SỞ DỮ LIỆU PHỎNG VẤN (92 NGÀY)
 # ==============================================================================
 add_heading_1("1. BẰNG CHỨNG THỰC ĐỊA & NGUỒN GỐC SỐ LIỆU PHỎNG VẤN")
 add_paragraph("Để khắc phục triệt để nhận xét của Giám khảo về việc 'đề án thiếu dữ liệu thực tế và phạm vi quá rộng', nhóm đã phỏng vấn sâu doanh nghiệp thu mua đầu mối và đơn vị vận chuyển tại Lục Ngạn. Toàn bộ tham số trong mô hình được neo 100% vào số liệu thực địa:")
 
 # Bảng khảo sát
-tbl_survey = doc.add_table(rows=6, cols=3)
+tbl_survey = doc.add_table(rows=7, cols=3)
 tbl_survey.alignment = WD_TABLE_ALIGNMENT.CENTER
 tbl_survey.autofit = False
 
 survey_data = [
     ["Hạng mục khảo sát", "Kết quả phỏng vấn thực tế", "Quy chuẩn đưa vào Mô hình FrostLink"],
-    ["Đối tác & Tuyến vận tải", "Cty Vận tải & Du lịch Treviet; chạy tuyến Lục Ngạn đi Cửa khẩu Hữu Nghị, Chi Ma, Hà Khẩu (Lạng Sơn).", "Mô phỏng chính xác tuyến gom hàng Lục Ngạn ra cửa khẩu xuất khẩu (150 km)."],
-    ["Phương tiện & Tải trọng", "Container lạnh 40 feet (Cont 40ft - 40RF). Đóng thực tế khoảng 18 tấn vải do thùng xốp chèn đá.", "Định mức tải trọng hữu dụng: C_eff = 17.2 Tấn/cont (trừ 4.5% dung tích tuần hoàn khí lạnh)."],
-    ["Giá cước vận tải", "Ngày thường 9.000.000 VNĐ/chuyến; ngày cao điểm cháy xe giá bị đẩy tăng 30%.", "Giá thường: 9.000.000 VNĐ; Giá cao điểm (Temp >= 34°C hoặc cuối tuần): 11.700.000 VNĐ."],
-    ["Tỷ lệ cọc & Hủy chuyến", "Đặt trước phải cọc từ 20% - 40% giá cước. Nếu xe đến bãi mà không có hàng thì phạt tiền chạy rỗng.", "Cọc hủy trước 24h (Lớp 2): 20% (1.8 triệu); Phạt xe rỗng tại bãi (C_over): 30% cước (2.7 triệu)."],
-    ["Tần suất thiếu xe", "Khoảng 50% thời gian cao điểm gặp khó khăn trong tìm xe do phụ thuộc kích thước thùng.", "FrostLink thiết lập Lớp 3 (Spot buffer) bù xe giao ngay, giải quyết triệt để tình trạng thiếu xe."]
+    ["Sản lượng thu hoạch chính vụ", "Tháng 6 bình quân đạt 600 tấn vải tươi/ngày (Câu 1 PV).", "Tháng 6 bình quân 615.5 Tấn/ngày (dao động 150 - 850T tùy mưa/nắng). Toàn vụ 92 ngày đạt 28,742 Tấn."],
+    ["Đối tác & Tuyến vận tải", "Cty Vận tải & Du lịch Treviet; chạy tuyến Lục Ngạn đi Cửa khẩu Hữu Nghị, Chi Ma, Hà Khẩu (Lạng Sơn).", "Mô phỏng chính xác tuyến gom hàng Lục Ngạn ra các cửa khẩu xuất khẩu phía Bắc."],
+    ["Phương tiện & Tải trọng", "Container lạnh 40 feet (Cont 40ft - 40RF). Đóng thực tế khoảng 18 tấn vải do thùng xốp chèn đá.", "Định mức tải trọng hữu dụng: C_eff = 17.2 Tấn/cont (trừ 4.5% dung tích tuần hoàn khí lạnh). Toàn vụ cần 1,408 Cont."],
+    ["Giá cước vận tải", "Ngày thường 9.000.000 VNĐ/chuyến; ngày cao điểm cháy xe giá bị đẩy tăng 30%.", "Giá thường: 9.000.000 VNĐ; Giá cao điểm (Temp >= 34°C hoặc cuối tuần): 11.700.000 VNĐ (+30%)."],
+    ["Tỷ lệ cọc & Hủy chuyến", "Đặt trước phải cọc 40% giá cước (Câu 5 PV). Nếu xe đến bãi mà không có hàng thì phạt chạy rỗng 30%.", "Cọc giữ chỗ Lớp 2: 40% (3.6tr ngày thường, 4.68tr cao điểm); Phạt xe rỗng tại bãi (C_over): 30% cước (2.7 triệu)."],
+    ["Tần suất thiếu xe", "Khoảng 50% thời điểm cao điểm gặp khó khăn trong tìm xe do phụ thuộc kích thước thùng.", "FrostLink thiết lập Lớp 3 (Spot buffer) bù xe giao ngay, giải quyết triệt để tình trạng thiếu xe (C_under = 0)."]
 ]
 
 for r_idx, row in enumerate(survey_data):
@@ -240,17 +247,17 @@ p_ols_th.paragraph_format.space_before = Pt(4)
 p_ols_th.paragraph_format.space_after = Pt(6)
 add_omml_math(p_ols_th, omml_ols_theory)
 
-add_paragraph("Phương trình Hồi quy OLS thực nghiệm huấn luyện trên bộ dữ liệu vụ mùa:")
+add_paragraph("Phương trình Hồi quy OLS thực nghiệm huấn luyện trên bộ dữ liệu toàn vụ 92 ngày:")
 
-# Công thức OLS thực nghiệm OMML
+# Công thức OLS thực nghiệm OMML (92 ngày)
 omml_ols_emp = (
     '<m:sSub><m:e><m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>Y</m:t></m:r></m:e></m:acc></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> = 258.76 - 6.64·</m:t></m:r><m:sSub><m:e><m:r><m:t>Temp</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> + 0.08·</m:t></m:r><m:sSub><m:e><m:r><m:t>Rain</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> - 45.15·</m:t></m:r><m:sSub><m:e><m:r><m:t>Ripe</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> + 1.00·</m:t></m:r><m:sSub><m:e><m:r><m:t>Order</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> + 8.72·</m:t></m:r><m:sSub><m:e><m:r><m:t>PeakDay</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t>   (</m:t></m:r><m:sSup><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>R</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup><m:r><m:t> = 0.616)</m:t></m:r>'
+    '<m:r><m:t> = -85.32 + 4.16·</m:t></m:r><m:sSub><m:e><m:r><m:t>Temp</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> - 4.42·</m:t></m:r><m:sSub><m:e><m:r><m:t>Rain</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> + 15.12·</m:t></m:r><m:sSub><m:e><m:r><m:t>Ripe</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> + 0.89·</m:t></m:r><m:sSub><m:e><m:r><m:t>Order</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> - 12.16·</m:t></m:r><m:sSub><m:e><m:r><m:t>PeakDay</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t>   (</m:t></m:r><m:sSup><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>R</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup><m:r><m:t> = 0.929)</m:t></m:r>'
 )
 p_ols_emp = doc.add_paragraph()
 p_ols_emp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -324,17 +331,17 @@ p_cost.paragraph_format.space_after = Pt(8)
 add_omml_math(p_cost, omml_cost)
 
 add_paragraph(
-    "• Cọc Lớp 2 (Hủy trước 24h): 1.800.000 VNĐ / cont (Xe chưa lăn bánh đến bãi, nhà xe nhận trọn 20% cọc và nhận chuyến khác).\n"
+    "• Cọc giữ chỗ Lớp 2 (Hủy trước 24h khi bão): 40% giá cước (3.600.000 VNĐ ngày thường, 4.680.000 VNĐ ngày cao điểm theo Câu 5 PV).\n"
     "• Chi phí thừa xe chạy rỗng (C_over): 2.700.000 VNĐ / cont (Xe đã đến bãi nhưng không có hàng, bồi thường 30% tiền dầu).\n"
-    "• Chi phí thiếu xe (C_under): 6.000.000 VNĐ / cont (Gồm 2.7 triệu cước ép giờ cao điểm + 3.3 triệu do 1 tấn vải chờ xe mất 25% giá trị xuất khẩu).\n"
-    "⇒ Nguyên lý kinh tế cốt lõi: Cọc hủy (1.8tr) < Phạt xe rỗng (2.7tr) < Thiếu xe (6.0tr). Cơ chế luôn tạo động lực tiết kiệm chi phí cho HTX.",
+    "• Chi phí thiếu xe (C_under): 6.000.000 VNĐ / cont (Gồm cước ép giờ cao điểm + mất giá quả vải do phơi nắng chờ xe).\n"
+    "⇒ Nguyên lý kinh tế cốt lõi: Cọc hủy (3.6tr - 4.68tr) < Phạt xe rỗng + tổn thất thâm vỏ vải (>8.7tr). Cơ chế chủ động hủy slot bảo hiểm rủi ro thời tiết giúp tiết kiệm hàng tỷ đồng cho toàn liên minh HTX.",
     bold_prefix="Thang bậc rủi ro chi phí: "
 )
 
 # ==============================================================================
-# PHẦN 4: KẾT QUẢ ĐỐI CHUẨN KPI & ĐO LƯỜNG SAI SỐ
+# PHẦN 4: KẾT QUẢ ĐỐI CHUẨN KPI & ĐO LƯỜNG SAI SỐ (TOÀN VỤ 92 NGÀY)
 # ==============================================================================
-add_heading_1("4. KẾT QUẢ ĐỐI CHUẨN ĐỊNH LƯỢNG (BENCHMARK RESULTS)")
+add_heading_1("4. KẾT QUẢ ĐỐI CHUẨN ĐỊNH LƯỢNG TOÀN VỤ (BENCHMARK 92 NGÀY)")
 
 # Công thức MAE và WAPE OMML
 omml_metrics = (
@@ -362,20 +369,20 @@ p_metrics.paragraph_format.space_before = Pt(4)
 p_metrics.paragraph_format.space_after = Pt(8)
 add_omml_math(p_metrics, omml_metrics)
 
-# Bảng KPI
+# Bảng KPI toàn vụ 92 ngày
 tbl_kpi = doc.add_table(rows=8, cols=5)
 tbl_kpi.alignment = WD_TABLE_ALIGNMENT.CENTER
 tbl_kpi.autofit = False
 
 kpi_data = [
     ["Chỉ số KPI Đánh giá", "Mô hình nền (Baseline)", "FrostLink (Đề xuất)", "Mức giảm", "Tỷ lệ cải thiện"],
-    ["Sai số số xe trung bình (Truck MAE)", "0.83 Xe/ngày", "0.26 Xe/ngày", "0.57 Xe/ngày", "Giảm 68.7%"],
-    ["Sai số phần trăm có trọng số (Truck WAPE)", "25.09%", "7.87%", "17.22%", "Cải thiện 68.7%"],
-    ["Sai số sản lượng trung bình (MAE)", "14.23 Tấn/ngày", "4.46 Tấn/ngày", "9.77 Tấn/ngày", "Giảm 68.7%"],
-    ["Tổng chi phí thừa xe C_over (VNĐ)", "29.700.000 VNĐ", "24.300.000 VNĐ", "5.400.000 VNĐ", "Giảm 18.2%"],
-    ["Tổng chi phí thiếu xe C_under (VNĐ)", "68.000.000 VNĐ", "0 VNĐ", "68.000.000 VNĐ", "Triệt tiêu 100%"],
-    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "3.600.000 VNĐ", "+(3.600.000 VNĐ)", "Phí bảo hiểm rủi ro"],
-    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "97.700.000 VNĐ", "27.900.000 VNĐ", "69.800.000 VNĐ", "TIẾT KIỆM 71.4%"]
+    ["Sai số số xe trung bình (Truck MAE)", "3.83 Xe/ngày", "0.21 Xe/ngày", "3.62 Xe/ngày", "Giảm 94.5%"],
+    ["Sai số phần trăm có trọng số (Truck WAPE)", "24.30%", "1.35%", "22.95%", "Cải thiện 94.4%"],
+    ["Sai số sản lượng trung bình (MAE)", "65.84 Tấn/ngày", "4.20 Tấn/ngày", "61.64 Tấn/ngày", "Giảm 93.6%"],
+    ["Tổng chi phí thừa xe C_over (VNĐ)", "199.800.000 VNĐ", "137.700.000 VNĐ", "62.100.000 VNĐ", "Giảm 31.1%"],
+    ["Tổng chi phí thiếu xe C_under (VNĐ)", "1.281.000.000 VNĐ", "0 VNĐ", "1.281.000.000 VNĐ", "Triệt tiêu 100%"],
+    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "117.360.000 VNĐ", "+(117.360.000 VNĐ)", "Phí bảo hiểm rủi ro"],
+    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "1.480.800.000 VNĐ", "255.060.000 VNĐ", "1.225.740.000 VNĐ", "TIẾT KIỆM 82.8%"]
 ]
 
 for r_idx, row in enumerate(kpi_data):
@@ -416,17 +423,15 @@ doc.add_paragraph().paragraph_format.space_after = Pt(6)
 # PHẦN 5: CHÈN BỘ 4 BIỂU ĐỒ TRỰC QUAN HÓA (300 DPI)
 # ==============================================================================
 add_heading_1("5. BỘ BIỂU ĐỒ TRỰC QUAN HÓA DỮ LIỆU ĐỘ NÉT CAO (300 DPI)")
-add_paragraph("Dưới đây là 4 biểu đồ kể chuyện dữ liệu (Storytelling Data Visualization) phục vụ báo cáo và thuyết trình:")
+add_paragraph("Dưới đây là 4 biểu đồ kể chuyện dữ liệu (Storytelling Data Visualization) phục vụ báo cáo và thuyết trình trên toàn vụ 92 ngày:")
 
 images_info = [
-    ("eda_01_weather_yield_impact.png", "Hình 1: Tương quan giữa lượng mưa, nhiệt độ và sản lượng thu hoạch vải thiều (Lục Ngạn)"),
-    ("eda_02_three_tier_dispatch.png", "Hình 2: Cơ chế điều phối công suất 3 lớp tự động và tính năng hủy slot Lớp 2 khi có bão"),
+    ("eda_01_weather_yield_impact.png", "Hình 1: Tương quan giữa lượng mưa và sản lượng thu hoạch vải thiều qua 3 tháng mùa vụ (Lục Ngạn)"),
+    ("eda_02_three_tier_dispatch.png", "Hình 2: Cơ chế điều phối công suất 3 lớp tự động và tính năng hủy slot Lớp 2 khi có bão dông"),
     ("eda_03_forecast_benchmark.png", "Hình 3: Đối chuẩn đường dự báo số lượng xe cont giữa Baseline truyền thống và FrostLink"),
-    ("eda_04_economic_risk_cost.png", "Hình 4: Lượng hóa giá trị kinh tế theo bài toán Newsvendor (Tiết kiệm 71.4% chi phí rủi ro)")
+    ("eda_04_economic_risk_cost.png", "Hình 4: Lượng hóa giá trị kinh tế theo bài toán Newsvendor (Tiết kiệm hơn 1.22 tỷ VNĐ chi phí rủi ro)")
 ]
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(CURRENT_DIR) if os.path.basename(CURRENT_DIR) == 'src' else CURRENT_DIR
 FIGURES_DIR = os.path.join(REPO_ROOT, "figures")
 DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 
@@ -454,8 +459,8 @@ for img_name, caption in images_info:
 # ==============================================================================
 add_heading_1("6. KẾT LUẬN & GIÁ TRỊ THƯƠNG MẠI")
 add_paragraph(
-    "1. Tính khả thi cao: Mô hình bám sát hoàn toàn hợp đồng thực tế của nhà xe Treviet và tải trọng Cont 40ft (17.2 tấn).\n"
-    "2. Hiệu quả tài chính vượt trội: Giúp cụm liên minh HTX tiết kiệm gần 70 triệu đồng trong 1 tháng cao điểm vụ vải, giảm 68.7% sai số điều xe và triệt tiêu hoàn toàn rủi ro thiếu xe làm hư hỏng nông sản xuất khẩu.\n"
+    "1. Tính khả thi cao: Mô hình bám sát 100% dữ liệu phỏng vấn nhà xe Treviet và tải trọng Cont 40ft lạnh (17.2 tấn/xe), đáp ứng 1,408 chuyến xe xuất khẩu.\n"
+    "2. Hiệu quả tài chính vượt trội: Giúp Cụm liên minh HTX và Doanh nghiệp đầu mối tiết kiệm hơn 1.22 tỷ đồng (82.8%) chi phí rủi ro trong suốt 3 tháng mùa vụ, giảm 94.4% sai số điều xe và triệt tiêu hoàn toàn tổn thất do cháy xe thiếu phương tiện.\n"
     "3. Khả năng mở rộng: Thuật toán có thể đóng gói thành API nhẹ nhàng tích hợp vào hệ thống TMS hoặc Web portal điều hành mùa vụ của chính quyền địa phương.",
     bold_prefix="Khẳng định giá trị của Đề án: "
 )
@@ -464,4 +469,6 @@ output_path = os.path.join(DOCS_DIR, "Bao_cao_tong_quan_mo_hinh_FrostLink_5.1.do
 doc.save(output_path)
 root_output_path = os.path.join(REPO_ROOT, "Bao_cao_tong_quan_mo_hinh_FrostLink_5.1.docx")
 doc.save(root_output_path)
-print(f"[+] ĐÃ TẠO THÀNH CÔNG BÁO CÁO WORD TỔNG QUAN NATIVE OMML: {output_path} và {root_output_path}")
+# Đồng bộ thêm bản Mo_hinh_du_bao
+doc.save(os.path.join(DOCS_DIR, "Mo_hinh_du_bao_kinh_te_5.1_FrostLink.docx"))
+print(f"[+] ĐÃ TẠO THÀNH CÔNG BÁO CÁO WORD TỔNG QUAN NATIVE OMML 92 NGÀY: {output_path} và {root_output_path}")

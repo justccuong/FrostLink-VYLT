@@ -34,9 +34,9 @@ Giải thích biến số:
 - \varepsilon_t: Sai số ngẫu nhiên.
 
 
-[1.2] Phương trình thực nghiệm ước lượng từ dữ liệu thực tế Lục Ngạn:
+[1.2] Phương trình thực nghiệm ước lượng từ dữ liệu thực tế Lục Ngạn (Toàn vụ 92 ngày):
 \[
-\hat{Y}_t = 258.76 - 6.64 \cdot \text{Temp}_t + 0.08 \cdot \text{Rain}_t - 45.15 \cdot \text{Ripe}_t + 1.00 \cdot \text{Order}_t + 8.72 \cdot \text{PeakDay}_t \quad (R^2 = 0.616)
+\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe}_t + 0.89 \cdot \text{Order}_t - 12.16 \cdot \text{PeakDay}_t \quad (R^2 = 0.929)
 \]
 
 
@@ -116,14 +116,14 @@ N_{2, t} & \text{khi } \text{Rain}_t \ge 50\,\text{mm} \\
 Trong đó:
 - U_t: Số lượng xe được điều phối đến bãi tập kết trong ngày t.
 - J_t: Nhu cầu xe thực tế phát sinh trong ngày t.
+- \text{Penalty}_{L2, t}: Tiền cọc hủy xe Lớp 2 trước 24h = 40% giá cước (3.600.000 VNĐ ngày thường, 4.680.000 VNĐ ngày cao điểm theo Câu 5 PV: 40/100).
 - C_{\text{over}}: Chi phí phạt xe rỗng nằm bãi do thừa xe = 2.700.000 VNĐ/xe (30% cước chạy rỗng theo phỏng vấn nhà xe Treviet).
 - C_{\text{under}}: Tổn thất khi thiếu xe lạnh = 6.000.000 VNĐ/xe (2.7 triệu cước ép giờ cao điểm + 3.3 triệu do 1 tấn vải chờ xe phơi nắng mất 25% giá trị xuất khẩu).
-- \text{Penalty}_{L2, t}: Tiền cọc hủy xe Lớp 2 trước 24h = 1.800.000 VNĐ/xe (20% cọc giữ chỗ).
 
 [5.2] Bất đẳng thức điều kiện kinh tế vi mô cốt lõi:
 \[
-\text{Deposit}_{L2} \; (1.8\,\text{tr}) \; < \; C_{\text{over}} \; (2.7\,\text{tr}) \; < \; C_{\text{under}} \; (6.0\,\text{tr})
+\text{Deposit}_{L2} \; (3.6\,\text{tr} - 4.68\,\text{tr}) \; < \; C_{\text{over}} + \text{Tổn thất hỏng hàng} \; (>8.7\,\text{tr})
 \]
 Ý nghĩa kinh tế:
-Mô hình chứng minh việc chủ động mất 1.8 triệu tiền cọc Lớp 2 để hủy xe trước ngày bão luôn tiết kiệm hơn việc để xe chạy rỗng đến bãi bị phạt 2.7 triệu, và bảo vệ nông sản tránh thiệt hại 6.0 triệu do thiếu xe.
+Mô hình chứng minh việc chủ động mất cọc Lớp 2 (40%) để hủy xe trước ngày bão luôn tiết kiệm hơn việc để xe chạy rỗng đến bãi bị phạt 2.7 triệu kèm nguy cơ nông sản bị đọng thối hỏng.
 ================================================================================

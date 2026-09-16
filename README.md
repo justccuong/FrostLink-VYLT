@@ -27,23 +27,23 @@ Hệ thống logistics truyền thống hiện nay gặp thất bại thị trư
 
 ---
 
-## 📊 2. Kết quả Đối chuẩn Mô hình (Model Benchmark)
+## 📊 2. Kết quả Đối chuẩn Mô hình (Model Benchmark - Toàn vụ 92 ngày)
 
-Thử nghiệm đối chuẩn trên tập dữ liệu 30 ngày chính vụ Lục Ngạn ($1.647\text{ tấn}$ vải, $93\text{ chuyến}$ Container 40RF):
+Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $28.742,2\text{ tấn}$ vải, $1.408\text{ chuyến}$ Container 40RF, bám sát phỏng vấn thực tế nhà xe Treviet, tháng 6 bình quân ~600 tấn/ngày):
 
 | Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | $R^2$ Score | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Trung bình 3 ngày)** | 14.23 Tấn | 0.83 Xe/ngày | 25.09% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi mưa bão). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 12.17 Tấn | 0.60 Xe/ngày | 19.35% | 0.616 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
-| **Random Forest (Cây quyết định)** | 10.40 Tấn | 0.53 Xe/ngày | 17.20% | 0.754 | Học máy phi tuyến, bền bỉ, chống nhiễu phương sai tốt. |
-| **XGBoost (Gradient Boosting)** | **3.98 Tấn** | **0.30 Xe/ngày** | **9.68%** | **0.960** | **Mô hình tối ưu:** Đưa WAPE xuống $<10\%$ (chuẩn khắt khe logistics quốc tế). |
-| **FrostLink (Tích hợp Cơ chế 3 Lớp)** | **—** | **0.26 Xe/ngày** | **7.87%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **71.4% chi phí rủi ro** vụ mùa. |
+| **Baseline (Trung bình 3 ngày)** | 65.84 Tấn | 3.83 Xe/ngày | 24.30% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.29 Xe/ngày | 14.99% | 0.929 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
+| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.78 Xe/ngày | 5.11% | 0.991 | Học máy phi tuyến, bền bỉ, chống nhiễu phương sai tốt. |
+| **XGBoost (Gradient Boosting)** | **4.20 Tấn** | **0.21 Xe/ngày** | **1.35%** | **0.999** | **Mô hình tối ưu:** Đưa WAPE xuống $<2\%$ (chuẩn khắt khe logistics quốc tế, bắt trọn các đợt bão dông). |
+| **FrostLink (Tích hợp Cơ chế 3 Lớp)** | **—** | **0.21 Xe/ngày** | **1.35%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **82.78% chi phí rủi ro** toàn vụ. |
 
 ### 💰 Lượng hóa Kinh tế theo Bài toán Newsvendor:
-- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $29.7\text{ triệu}$ xuống $24.3\text{ triệu VNĐ}$.
-- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $68.0\text{ triệu}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
-- **Phí hủy cọc bảo hiểm Lớp 2:** $3.6\text{ triệu VNĐ}$ (cho 2 ngày bão lớn $Rain \ge 50\text{mm}$).
-- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$97.7\text{ triệu}$ xuống $27.9\text{ triệu VNĐ}$**, **tiết kiệm $69.8\text{ triệu VNĐ (71.4%)}$**.
+- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $199.8\text{ triệu}$ xuống $137.7\text{ triệu VNĐ}$ (Giảm 31.1%).
+- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $1.281\text{ tỷ}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
+- **Phí hủy cọc bảo hiểm Lớp 2:** $117.36\text{ triệu VNĐ}$ (cọc 40% cho các ngày bão lớn).
+- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$1.480,8\text{ triệu}$ xuống $255,06\text{ triệu VNĐ}$**, **tiết kiệm hơn $1,225\text{ tỷ VNĐ (82.78%)}$**.
 
 ---
 

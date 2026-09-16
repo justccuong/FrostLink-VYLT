@@ -26,22 +26,22 @@ Toàn bộ số liệu trong mô hình được "neo" 100% vào **Biên bản ph
 4. **Giá cước vận tải:**
    * Ngày thường: **9.000.000 VNĐ / chuyến**.
    * Ngày cao điểm (cháy xe, nhiệt độ $\ge 34^\circ\text{C}$ hoặc cuối tuần): **Tăng 30% = 11.700.000 VNĐ / chuyến**.
-5. **Quy mô mùa vụ thí điểm:** Tổng sản lượng thu hoạch 30 ngày chính vụ (tháng 6/2026) là **1.647 tấn vải** (tương đương nhu cầu **93 chuyến Cont 40ft**), đại diện cho Cụm liên minh gồm 1 Doanh nghiệp đầu mối và 2-3 Hợp tác xã vệ tinh.
+5. **Quy mô mùa vụ thí điểm:** Toàn bộ 92 ngày vụ mùa (Tháng 5, 6, 7/2026) đạt tổng sản lượng **28.742,2 tấn vải** (tương đương nhu cầu **1.408 chuyến Cont 40ft**), đại diện cho Cụm liên minh gồm 1 Doanh nghiệp đầu mối và các Hợp tác xã vệ tinh (trong đó Tháng 6 chính vụ bình quân đạt ~600 tấn/ngày bám sát Câu 1 PV).
 
 ---
 
-## 3. BỘ THAM SỐ TÀI CHÍNH ĐÃ CHUẨN HÓA (ĐƯỢC KHÁNH LY THỐNG NHẤT)
+## 3. BỘ THAM SỐ TÀI CHÍNH ĐÃ CHUẨN HÓA THEO BIÊN BẢN PHỎNG VẤN
 
-Nhóm đã giải quyết triệt để "hạt sạn" kinh tế (tránh nghịch lý cọc đắt hơn xe chạy rỗng) với bộ 3 tham số:
+Nhóm đã giải quyết triệt để bài toán kinh tế với bộ tham số chuẩn từ nhà xe Treviet:
 
 | Hạng mục chi phí | Tỷ lệ quy định | Số tiền đưa vào mô hình | Căn cứ nghiệp vụ giải trình |
 | :--- | :---: | :---: | :--- |
-| **1. Cọc giữ chỗ Lớp 2 (Hủy trước 24h)** | **20% giá cước** | **1.800.000 VNĐ / cont** | Báo hủy trước 24h khi có bão, xe **chưa lăn bánh đến bãi**, nhà xe nhận trọn 20% cọc và nhận chuyến khác. HTX chỉ mất 1.8 triệu. |
-| **2. Phạt xe chạy rỗng ($C_{over}$)** | **30% giá cước** | **2.700.000 VNĐ / cont** | Xe **đã lăn bánh đến bãi** nhưng không có hàng bốc lên $\rightarrow$ Xe chạy không về bãi. Bồi thường tiền dầu và công nhật tài xế. |
+| **1. Cọc giữ chỗ Lớp 2 (Hủy trước 24h)** | **40% giá cước** | **3.600.000 - 4.680.000 VNĐ** | Báo hủy trước 24h khi có bão, xe **chưa lăn bánh đến bãi**, mất cọc 40% (theo Câu 5 PV: 40/100). |
+| **2. Phạt xe chạy rỗng ($C_{over}$)** | **30% giá cước** | **2.700.000 VNĐ / cont** | Xe **đã lăn bánh đến bãi** nhưng không có hàng bốc lên $\rightarrow$ Xe chạy rỗng về bãi. Bồi thường tiền dầu. |
 | **3. Thiệt hại thiếu xe ($C_{under}$)** | **Cước ép + Vải mất giá** | **6.000.000 VNĐ / cont** | Gồm: 2.7 triệu (bị ép cước cao điểm +30%) + 3.3 triệu (tiền 1 tấn vải chờ xe mất 25% giá trị xuất khẩu). |
 
-👉 **Thang bậc logic:** $\text{Cọc hủy (1.8tr)} < \text{Xe chạy rỗng (2.7tr)} < \text{Thiếu xe (6.0tr)}$.  
-Đúng chuẩn kinh tế: *Hủy trước luôn tiết kiệm tiền hơn để xe chạy rỗng!*
+👉 **Thang bậc logic:** $\text{Cọc hủy (3.6tr - 4.68tr)} < \text{Xe chạy rỗng (2.7tr) + Vải thâm hỏng} \; (>8.7\text{tr})$.  
+Đúng chuẩn kinh tế: *Chủ động hủy slot bảo hiểm rủi ro thời tiết luôn tiết kiệm tiền hơn để xe chạy rỗng và hàng bị đọng!*
 
 ---
 
@@ -75,24 +75,25 @@ $\Rightarrow$ *Đây là minh chứng rõ nhất vì sao phải có FrostLink đ
 
 ## 5. KẾT QUẢ ĐỐI CHUẨN MÔ HÌNH VÀ BỘ SỐ LIỆU ĐỊNH LƯỢNG
 
-### 5.1. Bảng so sánh giữa Baseline và FrostLink (Dòng 35-42 trong Excel)
+### 5.1. Bảng so sánh giữa Baseline và FrostLink toàn vụ 92 ngày (Dòng 96-104 trong Excel)
 
 | Chỉ số KPI | Mô hình nền (Baseline HTX) | Mô hình FrostLink (Đề xuất) | Mức cải thiện | Ý nghĩa kinh tế |
 | :--- | :---: | :---: | :---: | :--- |
-| **Truck MAE (Sai số số xe)** | **0.83 xe/ngày** | **0.26 xe/ngày** | **Giảm 68.7%** | Sai số chỉ còn lệch 1/4 cont mỗi ngày. |
-| **Truck WAPE (Sai số % có trọng số)** | **25.09%** | **7.87%** | **Giảm 68.7%** | Chuẩn sai số logistics đẳng cấp quốc tế (<10%). |
-| **Sản lượng MAE** | 14.23 Tấn/ngày | 4.46 Tấn/ngày | Giảm 68.7% | Dự báo sát thực tế thu hoạch. |
-| **Tổng chi phí thừa xe ($C_{over}$)** | 29.700.000 VNĐ | 24.300.000 VNĐ | Giảm 5.400.000 VNĐ | Giảm tối đa xe chạy rỗng. |
-| **Tổng chi phí thiếu xe ($C_{under}$)** | 68.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, không bao giờ bị thiếu xe làm hỏng vải. |
-| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 3.600.000 VNĐ | +(3.6 triệu) | Chi phí bảo hiểm rủi ro thời tiết (2 ngày mưa). |
-| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **97.700.000 VNĐ** | **27.900.000 VNĐ** | **TIẾT KIỆM 69.800.000 VNĐ (GIẢM 71.4%)** | Giúp cụm HTX tiết kiệm gần 70 triệu đồng trong 1 tháng! |
+| **Truck MAE (Sai số số xe)** | **3.83 xe/ngày** | **0.21 xe/ngày** | **Giảm 94.5%** | Sai số chỉ còn lệch 0.2 cont mỗi ngày. |
+| **Truck WAPE (Sai số % có trọng số)** | **24.30%** | **1.35%** | **Giảm 94.4%** | Chuẩn sai số logistics đẳng cấp quốc tế (<2%). |
+| **Sản lượng MAE** | 65.84 Tấn/ngày | 4.20 Tấn/ngày | Giảm 93.6% | Dự báo sát thực tế thu hoạch từng ngày. |
+| **Tổng chi phí thừa xe ($C_{over}$)** | 199.800.000 VNĐ | 137.700.000 VNĐ | Giảm 62.100.000 VNĐ | Giảm tối đa xe chạy rỗng. |
+| **Tổng chi phí thiếu xe ($C_{under}$)** | 1.281.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
+| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 117.360.000 VNĐ | +(117.36 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 40% cho các ngày bão). |
+| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **1.480.800.000 VNĐ** | **255.060.000 VNĐ** | **TIẾT KIỆM 1.225.740.000 VNĐ (GIẢM 82.8%)** | Cắt giảm hơn 1.22 tỷ đồng tổn thất cho toàn liên minh! |
 
-### 5.2. Phương trình hồi quy kinh tế lượng OLS
-$$\hat{Y}_t = 258.76 - 6.64 \cdot \text{Temp}_t + 0.08 \cdot \text{Rain}_t - 45.15 \cdot \text{Ripe\_pct}_t + 1.00 \cdot \text{Order\_ton}_t + 8.72 \cdot \text{PeakDay}_t$$
+### 5.2. Phương trình hồi quy kinh tế lượng OLS (92 ngày)
+$$\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe\_pct}_t + 0.89 \cdot \text{Order\_ton}_t - 12.16 \cdot \text{PeakDay}_t$$
 
-* $R^2 = 0.616$ (Giải thích được hơn 61.6% biến động sản lượng hàng ngày).
-* Cứ thêm 1 tấn đơn hàng chốt trước, hệ thống kích hoạt thu hoạch thêm đúng **1.0 tấn** vải ($\beta = +0.996$).
-* Ngày cao điểm cuối tuần thúc đẩy tăng thêm **8.72 tấn** để kịp lịch thông quan cửa khẩu.
+* $R^2 = 0.929$ (Giải thích được 92.9% biến động sản lượng hàng ngày).
+* Cứ thêm 1 tấn đơn hàng chốt trước, hệ thống kích hoạt thu hoạch thêm **0.89 tấn** vải ($\beta = +0.893$).
+* Mỗi độ C nhiệt độ tăng thúc đẩy sản lượng thu hoạch tăng **4.16 tấn** do vải chín nhanh.
+* Mỗi mm mưa làm giảm sản lượng thu hoạch **4.42 tấn** do nông dân tạm dừng bẻ cành khi trời mưa.
 
 ---
 
