@@ -76,13 +76,13 @@ $\Rightarrow$ *Đây là minh chứng rõ nhất vì sao phải có FrostLink đ
 
 | Chỉ số KPI | Mô hình nền (Baseline HTX) | Mô hình FrostLink (Đề xuất) | Mức cải thiện | Ý nghĩa kinh tế |
 | :--- | :---: | :---: | :---: | :--- |
-| **Truck MAE (Sai số số xe)** | **2.16 xe/ngày** | **0.18 xe/ngày** | **Giảm 91.5%** | Sai số xe tiệm cận 0, tối ưu hoàn hảo việc gọi xe. |
-| **Truck WAPE (Sai số % có trọng số)** | **17.92%** | **1.53%** | **Giảm 91.5%** | Chuẩn sai số logistics quốc tế xuất sắc (<2%). |
-| **Sản lượng MAE** | 37.41 Tấn/ngày | 3.19 Tấn/ngày | Giảm 91.5% | Dự báo cực sát thực tế thu hoạch từng ngày. |
-| **Tổng chi phí thừa xe ($C_{over}$)** | 137.700.000 VNĐ | 29.700.000 VNĐ | Giảm 108.000.000 VNĐ (78.4%) | Giảm tối đa xe chạy rỗng. |
-| **Tổng chi phí thiếu xe ($C_{under}$)** | 697.100.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
-| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 37.620.000 VNĐ | +(37.62 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 20% cho các ngày bão mưa >= 20mm). |
-| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **834.800.000 VNĐ** | **67.320.000 VNĐ** | **TIẾT KIỆM 767.480.000 VNĐ (GIẢM 91.9%)** | Cắt giảm hơn 767 triệu đồng tổn thất cho toàn liên minh! |
+| **Truck MAE (Sai số số xe)** | **2.16 Cont/ngày** | **1.05 Cont/ngày** | **Giảm 51.4%** | Cắt giảm hơn một nửa sai số điều xe thực địa. |
+| **Truck WAPE (Sai số % có trọng số)** | **17.92%** | **8.71%** | **Giảm 51.4%** | Chuẩn hóa quy trình đặt xe, kiểm soát độ lệch tải. |
+| **Sản lượng MAE** | 37.41 Tấn/ngày | 18.05 Tấn/ngày | Giảm 51.4% | Dự báo sát thực tế thu hoạch từng ngày (R² = 0.852). |
+| **Tổng chi phí thừa xe ($C_{over}$)** | 137.700.000 VNĐ | 70.200.000 VNĐ | Giảm 67.500.000 VNĐ (49.0%) | Giảm thiểu tình trạng xe lạnh chạy rỗng nằm bãi. |
+| **Tổng chi phí thiếu xe ($C_{under}$)** | 697.100.000 VNĐ | 297.200.000 VNĐ | Giảm 399.900.000 VNĐ (57.4%) | Cắt giảm mạnh thiệt hại do thiếu xe làm hỏng vải xuất khẩu. |
+| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 37.600.000 VNĐ | +(37.60 triệu) | Chi phí bảo hiểm rủi ro thời tiết (hủy slot khi mưa >= 17.5mm). |
+| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **834.800.000 VNĐ** | **405.000.000 VNĐ** | **TIẾT KIỆM 429.800.000 VNĐ (GIẢM 51.5%)** | Thu hồi 429.8 triệu đồng tổn thất rủi ro cho toàn liên minh HTX! |
 
 ### 5.2. Phương trình hồi quy kinh tế lượng OLS (92 ngày)
 $$\hat{Y}_t = -22.05 + 1.60 \cdot \text{Temp}_t - 2.84 \cdot \text{Rain}_t + 45.80 \cdot \text{Ripe\_pct}_t + 0.85 \cdot \text{Order\_ton}_t + 10.76 \cdot \text{PeakDay}_t$$

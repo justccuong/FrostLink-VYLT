@@ -432,13 +432,13 @@ tbl_kpi.autofit = False
 
 kpi_data = [
     ["Chỉ số KPI Đánh giá", "Mô hình nền (Baseline)", "FrostLink (Đề xuất)", "Mức giảm", "Tỷ lệ cải thiện"],
-    ["Sai số số xe trung bình (Truck MAE)", "2.16 Xe/ngày", "0.18 Xe/ngày", "1.98 Xe/ngày", "Giảm 91.5%"],
-    ["Sai số phần trăm có trọng số (Truck WAPE)", "17.92%", "1.53%", "16.39%", "Cải thiện 91.5%"],
-    ["Sai số sản lượng trung bình (MAE)", "37.41 Tấn/ngày", "3.19 Tấn/ngày", "34.22 Tấn/ngày", "Giảm 91.5%"],
-    ["Tổng chi phí thừa xe C_over (VNĐ)", "137.700.000 VNĐ", "29.700.000 VNĐ", "108.000.000 VNĐ", "Giảm 78.4%"],
-    ["Tổng chi phí thiếu xe C_under (VNĐ)", "697.100.000 VNĐ", "0 VNĐ", "697.100.000 VNĐ", "Triệt tiêu 100%"],
-    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "37.620.000 VNĐ", "+(37.620.000 VNĐ)", "Phí bảo hiểm rủi ro bão"],
-    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "834.800.000 VNĐ", "67.320.000 VNĐ", "767.480.000 VNĐ", "TIẾT KIỆM 91.9%"]
+    ["Sai số số xe trung bình (Truck MAE)", "2.16 Cont/ngày", "1.05 Cont/ngày", "1.11 Cont/ngày", "Giảm 51.4%"],
+    ["Sai số phần trăm có trọng số (Truck WAPE)", "17.92%", "8.71%", "9.21%", "Cải thiện 51.4%"],
+    ["Sai số sản lượng trung bình (MAE)", "37.41 Tấn/ngày", "18.05 Tấn/ngày", "19.36 Tấn/ngày", "Giảm 51.4%"],
+    ["Tổng chi phí thừa xe C_over (VNĐ)", "137.700.000 VNĐ", "70.200.000 VNĐ", "67.500.000 VNĐ", "Giảm 49.0%"],
+    ["Tổng chi phí thiếu xe C_under (VNĐ)", "697.100.000 VNĐ", "297.200.000 VNĐ", "399.900.000 VNĐ", "Giảm 57.4%"],
+    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "37.600.000 VNĐ", "-37.600.000 VNĐ", "Phí bảo hiểm rủi ro bão"],
+    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "834.800.000 VNĐ", "405.000.000 VNĐ", "429.800.000 VNĐ", "TIẾT KIỆM 51.5%"]
 ]
 
 for r_idx, row in enumerate(kpi_data):
