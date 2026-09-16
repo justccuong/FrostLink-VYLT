@@ -323,13 +323,32 @@ p_cost.paragraph_format.space_before = Pt(4)
 p_cost.paragraph_format.space_after = Pt(8)
 add_omml_math(p_cost, omml_cost)
 
-add_paragraph(
-    "• Cọc giữ chỗ Lớp 2 (Hủy trước 24h khi có bão mưa > 20mm): 20% giá cước (1.800.000 VNĐ ngày thường, 2.340.000 VNĐ ngày cao điểm).\n"
-    "• Chi phí thừa xe chạy rỗng (C_over): 2.700.000 VNĐ / cont (Xe đã đến bãi nhưng không có hàng, bồi thường 30% tiền dầu theo thỏa thuận).\n"
-    "• Chi phí thiếu xe (C_under): 6.000.000 VNĐ / cont (Gồm cước ép giờ cao điểm 2.7tr + mất giá quả vải 3.3tr do phơi nắng chờ xe).\n"
-    "⇒ Nguyên lý kinh tế cốt lõi: Cọc hủy (1.8tr - 2.34tr) < Phạt xe rỗng + tổn thất thâm vỏ vải (>8.7tr). Cơ chế chủ động hủy slot bảo hiểm rủi ro thời tiết giúp tiết kiệm hàng tỷ đồng cho toàn liên minh HTX.",
-    bold_prefix="Thang bậc rủi ro chi phí: "
-)
+p_cost_desc = doc.add_paragraph()
+p_cost_desc.paragraph_format.space_after = Pt(5)
+p_cost_desc.paragraph_format.line_spacing = 1.15
+r_pre = p_cost_desc.add_run("Thang bậc rủi ro chi phí: ")
+r_pre.font.name = 'Segoe UI'
+r_pre.font.size = Pt(10.5)
+r_pre.font.bold = True
+r_pre.font.color.rgb = COLOR_DARK
+
+def add_p_run(p, text, bold=False, italic=False, sub=False):
+    r = p.add_run(text)
+    r.font.name = 'Segoe UI'
+    r.font.size = Pt(10.5)
+    r.font.bold = bold
+    r.font.italic = italic
+    r.font.subscript = sub
+    r.font.color.rgb = COLOR_DARK
+    return r
+
+add_p_run(p_cost_desc, "\n• Cọc giữ chỗ Lớp 2 (Hủy trước 24h khi có bão mưa > 20mm): 20% giá cước (1.800.000 VNĐ ngày thường, 2.340.000 VNĐ ngày cao điểm).\n• Chi phí thừa xe chạy rỗng (")
+add_p_run(p_cost_desc, "C", italic=True)
+add_p_run(p_cost_desc, "over", sub=True)
+add_p_run(p_cost_desc, "): 2.700.000 VNĐ / cont (Xe đã đến bãi nhưng không có hàng, bồi thường 30% tiền dầu theo thỏa thuận).\n• Chi phí thiếu xe (")
+add_p_run(p_cost_desc, "C", italic=True)
+add_p_run(p_cost_desc, "under", sub=True)
+add_p_run(p_cost_desc, "): 6.000.000 VNĐ / cont (Gồm cước ép giờ cao điểm 2.7tr + mất giá quả vải 3.3tr do phơi nắng chờ xe).\n⇒ Nguyên lý kinh tế cốt lõi: Cọc hủy (1.8tr - 2.34tr) < Phạt xe rỗng + tổn thất thâm vỏ vải (>8.7tr). Cơ chế chủ động hủy slot bảo hiểm rủi ro thời tiết giúp tiết kiệm hàng tỷ đồng cho toàn liên minh HTX.")
 
 # ==============================================================================
 # PHẦN 4: KẾT QUẢ ĐỐI CHUẨN KPI & ĐO LƯỜNG SAI SỐ (TOÀN VỤ 92 NGÀY)
