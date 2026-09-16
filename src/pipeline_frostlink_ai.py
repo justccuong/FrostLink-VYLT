@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-PIPELINE XỬ LÝ DỮ LIỆU, TRỰC QUAN HÓA (EDA) VÀ ĐỐI CHUẨN MÔ HÌNH DỰ BÁO (RANDOM FOREST & XGBOOST)
+PIPELINE XỬ LÝ DỮ LIỆU, TRỰC QUAN HÓA (EDA) VÀ ĐỐI CHUẨN MÔ HÌNH DỰ BÁO (OLS, RANDOM FOREST & XGBOOST)
 Đề án: FrostLink - Nền tảng điều phối công suất chuỗi lạnh mùa vụ (Lục Ngạn)
 Cuộc thi: Vietnam Young Logistics Talents (VYLT) 2026
-Tác giả: Đặng Cường - Thành viên k chính thức
+Tác giả: Đặng Cường - Lead AI Engineer
 """
 
 import os
@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 import openpyxl
@@ -48,23 +49,30 @@ CONFIG = {
     "excel_path": os.path.join(DATA_DIR, "FrostLink_Du_lieu_Chuan.xlsx"),
     "sheet_name": "Final",
     
-    # Tham số kỹ thuật logistics (Cont 40ft chở vải xuất khẩu Treviet)
-    "truck_capacity": 17.2,         # Tải trọng hữu dụng thực tế xe Cont 40ft (18 tấn vải)
-    "cold_chain_ratio_normal": 0.80,# 80% sản lượng ngày thường đi xe lạnh
-    "cold_chain_ratio_peak": 0.85,  # 85% sản lượng ngày cao điểm đi xe lạnh
+    # Định mức tải trọng hữu dụng: Tải trọng danh định * 0.95 (5% dung tích tuần hoàn khí lạnh)
+    "nominal_capacity_40ft": 18.0,
+    "eff_capacity_40ft": 18.0 * 0.95,  # 17.1 Tấn/cont
+    "nominal_capacity_5t": 5.0,
+    "eff_capacity_5t": 5.0 * 0.95,     # 4.75 Tấn/xe
     
-    # Tham số chi phí rủi ro chuẩn hóa theo hợp đồng thực tế (Biên bản PV)
-    "trip_price_normal": 9_000_000, # Giá cước ngày thường: 9 triệu VNĐ/chuyến
-    "trip_price_peak": 11_700_000,  # Giá cước cao điểm (+30%): 11.7 triệu VNĐ/chuyến
-    "penalty_ratio_l2": 0.40,       # Cọc phạt khi hủy Lớp 2 = 40% giá xe (Câu 5 PV)
-    "c_over_unit": 2_700_000,       # Phạt xe chạy rỗng: 30% giá cước (2.7 triệu VNĐ)
-    "c_under_unit": 6_000_000,      # Thiệt hại thiếu xe: 2.7tr cước ép + 3.3tr vải mất giá (6.0 triệu VNĐ)
+    # Tỷ lệ sản lượng xuất khẩu đi xe lạnh
+    "cold_chain_ratio_normal": 0.80,   # 80% ngày thường
+    "cold_chain_ratio_peak": 0.85,     # 85% ngày cao điểm
+    
+    # Tham số chi phí cước và hợp đồng Newsvendor
+    "trip_price_40ft_normal": 9_000_000,
+    "trip_price_40ft_peak": 11_700_000,
+    "trip_price_5t_normal": 3_500_000,
+    "trip_price_5t_peak": 4_550_000,
+    "penalty_ratio_l2": 0.20,          # Cọc phạt khi hủy Lớp 2 = 20% giá cước
+    "c_over_unit": 2_700_000,          # Phạt xe chạy rỗng: 30% giá cước (2.7 triệu VNĐ/cont)
+    "c_under_unit": 6_000_000,         # Thiệt hại thiếu xe: 2.7tr cước ép + 3.3tr vải mất giá (6.0 triệu VNĐ/cont)
 }
 
 print("=" * 80)
-print(f"[*] KHỞI ĐỘNG PIPELINE FROSTLINK AI ENGINE (RANDOM FOREST & XGBOOST)")
+print(f"[*] KHỞI ĐỘNG PIPELINE FROSTLINK AI ENGINE (OLS, RANDOM FOREST & XGBOOST)")
 print(f"[*] Nguồn dữ liệu: {CONFIG['csv_path']}")
-print(f"[*] Định mức tải trọng Cont 40ft: {CONFIG['truck_capacity']} Tấn/cont")
+print(f"[*] Định mức tải trọng: Cont 40ft = {CONFIG['eff_capacity_40ft']} Tấn | Xe 5T = {CONFIG['eff_capacity_5t']} Tấn")
 print("=" * 80)
 
 # ==============================================================================
@@ -72,32 +80,13 @@ print("=" * 80)
 # ==============================================================================
 def load_and_audit_data():
     csv_file = CONFIG["csv_path"]
-    if not os.path.exists(csv_file):
-        csv_file = os.path.join(REPO_ROOT, "FrostLink_Data_Evaluated.csv")
-        
     df = pd.read_csv(csv_file)
-    df.rename(columns={
-        'Ripe': 'Ripe_pct',
-        'Order': 'Order_ton',
-        'Peak': 'PeakDay',
-        'Harvest': 'Harvest_ton',
-        'Demand_trucks': 'FrostLink_trucks_demand',
-        'L1': 'Layer1_firm',
-        'L2_plan': 'Layer2_plan',
-        'L2_run': 'Layer2_run',
-        'L2_penalty': 'Layer2_penalty',
-        'L3': 'Layer3_spot',
-        'Total_run': 'FrostLink_trucks_total',
-        'Price': 'Price_trip',
-        'Frost_err': 'FrostLink_err',
-        'Pred_T7': 'Pred_T7_ton',
-        'Pred_T3': 'Pred_T3_ton',
-        'Pred_T1': 'Pred_T1_ton',
-    }, inplace=True)
     
-    print(f"[+] Nạp thành công {len(df)} ngày dữ liệu mùa vụ (Tháng 5, 6, 7).")
-    print(f"[+] Tổng sản lượng thu hoạch toàn vụ: {df['Harvest_ton'].sum():,.1f} Tấn")
-    print(f"[+] Nhu cầu xe cont 40ft thực tế cả vụ: {df['Actual_trucks'].sum():,.0f} Cont")
+    print(f"[+] Nạp thành công {len(df)} ngày dữ liệu mùa vụ (Tháng 5, 6, 7/2026).")
+    print(f"[+] Tổng sản lượng thu hoạch toàn vụ: {df['Harvest'].sum():,.1f} Tấn")
+    print(f"[+] Tổng sản lượng đi chuỗi lạnh: {df['Cold_ton'].sum():,.1f} Tấn")
+    print(f"[+] Nhu cầu thực tế: {df['Actual_Cont40'].sum():,} Cont 40ft | {df['Actual_Truck5'].sum():,} Xe 5T (Tổng: {df['Actual_Total_Vehicles'].sum():,} chuyến xe)")
+    print(f"[+] FrostLink thực chạy: {df['Total_Cont40_Run'].sum():,} Cont 40ft | {df['Truck5_Run'].sum():,} Xe 5T (Tổng: {df['Total_Vehicles_Run'].sum():,} chuyến xe)")
     return df
 
 df = load_and_audit_data()
@@ -112,12 +101,11 @@ def plot_weather_yield_impact(df):
     x = np.arange(len(df))
     
     color_yield = '#1565C0'
-    line_yield = ax1.plot(x, df['Harvest_ton'], color=color_yield, marker='o', markersize=4, linewidth=2.2, label='Sản lượng thu hoạch (Tấn/ngày)')
+    line_yield = ax1.plot(x, df['Harvest'], color=color_yield, marker='o', markersize=4, linewidth=2.2, label='Sản lượng thu hoạch (Tấn/ngày)')
     ax1.set_xlabel('Ngày trong mùa vụ (Tháng 5, 6, 7/2026 - Lục Ngạn, Bắc Giang)', fontsize=12, fontweight='bold', labelpad=10)
     ax1.set_ylabel('Sản lượng thu hoạch (Tấn/ngày)', color=color_yield, fontsize=12, fontweight='bold')
     ax1.tick_params(axis='y', labelcolor=color_yield)
     
-    # Đánh dấu các mốc tháng
     step = 7
     ax1.set_xticks(x[::step])
     ax1.set_xticklabels(df['Day'].iloc[::step], rotation=45, fontsize=9.5)
@@ -140,9 +128,9 @@ def plot_weather_yield_impact(df):
     # Chú thích các đợt bão lớn
     major_storms = df[df['Rain'] >= 50]
     for idx, row in major_storms.iterrows():
-        ax1.annotate(f"Bão {row['Rain']:.0f}mm\nHái giảm còn {row['Harvest_ton']:.0f}T", 
-                     xy=(idx, row['Harvest_ton']), 
-                     xytext=(idx - 2.5, row['Harvest_ton'] + 80),
+        ax1.annotate(f"Bão {row['Rain']:.0f}mm\nHái giảm còn {row['Harvest']:.0f}T", 
+                     xy=(idx, row['Harvest']), 
+                     xytext=(idx - 2.5, row['Harvest'] + 80),
                      arrowprops=dict(facecolor='#d32f2f', shrink=0.08, width=1.5, headwidth=6),
                      bbox=dict(boxstyle="round,pad=0.3", fc="#ffebee", ec="#d32f2f", lw=1),
                      fontsize=8.5, fontweight='bold')
@@ -159,28 +147,31 @@ def plot_weather_yield_impact(df):
     plt.close()
     print(f"[+] Đã xuất: {out_path}")
 
-# BIỂU ĐỒ 2: CƠ CHẾ ĐIỀU PHỐI CÔNG SUẤT 3 LỚP (92 NGÀY)
+# BIỂU ĐỒ 2: CƠ CHẾ ĐIỀU PHỐI CÔNG SUẤT 3 LỚP CHO CONT 40FT & XE 5T (92 NGÀY)
 def plot_three_tier_dispatch(df):
     fig, ax = plt.subplots(figsize=(15, 6.8), dpi=300)
     x = np.arange(len(df))
     
-    l1 = df['Layer1_firm']
-    l2_run = df['Layer2_run']
-    l2_cancel = df['Layer2_plan'] - df['Layer2_run']
-    l3 = df['Layer3_spot']
-    actual = df['Actual_trucks']
+    l1 = df['L1_Cont40']
+    l2_run = df['L2_Run_Cont40']
+    l2_cancel = df['L2_Plan_Cont40'] - df['L2_Run_Cont40']
+    l3 = df['L3_Spot_Cont40']
+    actual_cont40 = df['Actual_Cont40']
+    truck5_run = df['Truck5_Run']
     
-    b1 = ax.bar(x, l1, color='#1565c0', width=0.75, label='Lớp 1: Cam kết cứng 70% (Firm Booking - Giá gốc 9tr)')
-    b2 = ax.bar(x, l2_run, bottom=l1, color='#42a5f5', width=0.75, label='Lớp 2: Quyền chọn linh hoạt (Flex Run - Cọc 40%)')
+    b1 = ax.bar(x, l1, color='#1565c0', width=0.75, label='Lớp 1: Cam kết cứng 70% Cont 40ft (Firm Booking - Giá gốc 9tr)')
+    b2 = ax.bar(x, l2_run, bottom=l1, color='#42a5f5', width=0.75, label='Lớp 2: Quyền chọn linh hoạt Cont 40ft (Flex Run - Cọc 20%)')
     b3 = ax.bar(x, l2_cancel, bottom=l1 + l2_run, color='#ef5350', hatch='///', alpha=0.85, width=0.75, 
-                label='Lớp 2: Hủy slot khi bão (Flex Cancelled - Mất cọc 40% tránh phạt xe rỗng)')
-    b4 = ax.bar(x, l3, bottom=l1 + l2_run + l2_cancel, color='#ffa726', width=0.75, label='Lớp 3: Giao ngay bù đắp (Spot Market Buffer)')
+                label='Lớp 2: Hủy slot Cont 40ft khi bão (Mất cọc 20% tránh phạt rỗng 2.7tr)')
+    b4 = ax.bar(x, l3, bottom=l1 + l2_run + l2_cancel, color='#ffa726', width=0.75, label='Lớp 3: Giao ngay bù đắp Cont 40ft (Spot Market Buffer)')
+    b5 = ax.bar(x, truck5_run, bottom=l1 + l2_run + l2_cancel + l3, color='#ab47bc', alpha=0.75, width=0.75,
+                label='Xe 5T: Giải tỏa vải dư lẻ LTL (Buffer Truck - 4.75T @ 3.5tr)')
     
-    line_act = ax.plot(x, actual, color='#000000', marker='o', linewidth=2.2, markersize=4, 
-                       label='Nhu cầu xe thực tế (Actual Trucks - Cont 40ft)', zorder=5)
+    line_act = ax.plot(x, actual_cont40, color='#000000', marker='o', linewidth=2.2, markersize=4, 
+                       label='Nhu cầu thực tế Cont 40ft (Actual Conts)', zorder=5)
     
     ax.set_xlabel('Ngày trong vụ mùa (Tháng 5, 6, 7/2026)', fontsize=12, fontweight='bold', labelpad=10)
-    ax.set_ylabel('Số lượng Container 40 feet (Cont/ngày)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Số lượng phương tiện lạnh (Xe/ngày)', fontsize=12, fontweight='bold')
     step = 7
     ax.set_xticks(x[::step])
     ax.set_xticklabels(df['Day'].iloc[::step], rotation=45, fontsize=9.5)
@@ -194,15 +185,15 @@ def plot_three_tier_dispatch(df):
     rain_cancel_days = df[l2_cancel > 0]
     for idx, row in rain_cancel_days.iterrows():
         if row['Rain'] >= 50:
-            ax.annotate('KÍCH HOẠT HỦY LỚP 2\nTránh đền xe rỗng 2.7tr', 
-                        xy=(idx, row['FrostLink_trucks_total'] + 0.5), 
-                        xytext=(idx - 3.5, row['FrostLink_trucks_total'] + 6),
+            ax.annotate('HỦY CỌC LỚP 2\nTránh phạt rỗng 2.7tr', 
+                        xy=(idx, row['Total_Cont40_Run'] + 0.5), 
+                        xytext=(idx - 3.5, row['Total_Cont40_Run'] + 6),
                         arrowprops=dict(facecolor='#d32f2f', shrink=0.08, width=1.5, headwidth=6),
                         bbox=dict(boxstyle="round,pad=0.3", fc="#ffebee", ec="#d32f2f", lw=1.2),
                         fontsize=8, fontweight='bold')
                         
-    ax.legend(loc='upper left', frameon=True, facecolor='white', framealpha=0.92, fontsize=10)
-    plt.title('BIỂU ĐỒ 2: CƠ CHẾ ĐIỀU PHỐI CÔNG SUẤT VẬN TẢI LẠNH 3 LỚP (3-TIER CAPACITY RESERVATION)\n(Bảo hiểm rủi ro thời tiết: Hủy slot Lớp 2 khi có bão giúp tối ưu chi phí toàn chuỗi)', 
+    ax.legend(loc='upper left', frameon=True, facecolor='white', framealpha=0.92, fontsize=9.5)
+    plt.title('BIỂU ĐỒ 2: CƠ CHẾ ĐIỀU PHỐI CÔNG SUẤT VẬN TẢI LẠNH 3 LỚP (CONT 40FT & XE 5T)\n(Hủy slot Lớp 2 khi có bão + Xe tải lạnh 5T gom vét hàng lẻ giúp tối ưu chi phí toàn chuỗi)', 
               fontsize=13, fontweight='bold', pad=15)
     plt.tight_layout()
     out_path = os.path.join(FIGURES_DIR, 'eda_02_three_tier_dispatch.png')
@@ -210,14 +201,14 @@ def plot_three_tier_dispatch(df):
     plt.close()
     print(f"[+] Đã xuất: {out_path}")
 
-# BIỂU ĐỒ 3: ĐỐI CHUẨN DỰ BÁO NHU CẦU XE LẠNH (92 NGÀY)
+# BIỂU ĐỒ 3: ĐỐI CHUẨN DỰ BÁO NHU CẦU CONT 40FT (92 NGÀY)
 def plot_forecast_benchmark(df):
     fig, ax = plt.subplots(figsize=(15, 6.2), dpi=300)
     x = np.arange(len(df))
     
-    ax.plot(x, df['Actual_trucks'], 'ko-', linewidth=2.2, markersize=4, label='Nhu cầu thực tế (Actual Conts)', zorder=4)
-    ax.plot(x, df['Baseline_pred'], 'r--s', linewidth=1.6, markersize=3.5, alpha=0.75, label='Mô hình nền Baseline (Trung bình động 3 ngày HTX - Bị trễ pha)', zorder=2)
-    ax.plot(x, df['FrostLink_trucks_demand'], 'g-^', linewidth=2.0, markersize=4, label='FrostLink AI (Mô hình Học máy Machine Learning)', zorder=3)
+    ax.plot(x, df['Actual_Cont40'], 'ko-', linewidth=2.2, markersize=4, label='Nhu cầu thực tế (Actual Cont 40ft)', zorder=4)
+    ax.plot(x, df['Baseline_Cont40'], 'r--s', linewidth=1.6, markersize=3.5, alpha=0.75, label='Mô hình nền Baseline (Trung bình động 3 ngày HTX - Bị trễ pha)', zorder=2)
+    ax.plot(x, df['Frost_Cont40'], 'g-^', linewidth=2.0, markersize=4, label='FrostLink AI (Dự báo Nhu cầu Cont 40ft T+1)', zorder=3)
     
     ax.set_xlabel('Ngày trong mùa vụ (Tháng 5, 6, 7/2026)', fontsize=12, fontweight='bold', labelpad=10)
     ax.set_ylabel('Số lượng Container 40 feet (Cont/ngày)', fontsize=12, fontweight='bold')
@@ -231,7 +222,7 @@ def plot_forecast_benchmark(df):
     ax.axvspan(31, 61, color='#fff9c4', alpha=0.35, label='Tháng 6 chính vụ cao điểm (~30 - 45 Cont/ngày)')
     
     ax.legend(loc='upper left', frameon=True, facecolor='white', framealpha=0.92, fontsize=10.5)
-    plt.title('BIỂU ĐỒ 3: ĐỐI CHUẨN DỰ BÁO NHU CẦU XE LẠNH GIỮA BASELINE VÀ FROSTLINK\n(FrostLink phản ứng tức thì trước biến động thời tiết, triệt tiêu độ trễ pha của Baseline)', 
+    plt.title('BIỂU ĐỒ 3: ĐỐI CHUẨN DỰ BÁO NHU CẦU CONTAINER LẠNH GIỮA BASELINE VÀ FROSTLINK\n(FrostLink phản ứng tức thì trước biến động thời tiết, triệt tiêu độ trễ pha của Baseline)', 
               fontsize=13, fontweight='bold', pad=15)
     plt.tight_layout()
     out_path = os.path.join(FIGURES_DIR, 'eda_03_forecast_benchmark.png')
@@ -241,19 +232,14 @@ def plot_forecast_benchmark(df):
 
 # BIỂU ĐỒ 4: TỔN THẤT KINH TẾ (NEWSVENDOR TRÊN TOÀN VỤ 92 NGÀY)
 def plot_economic_risk_cost(df):
-    base_mask = df['Baseline_pred'].notna()
-    base_over_days = np.maximum(0, df.loc[base_mask, 'Baseline_pred'] - df.loc[base_mask, 'Actual_trucks'])
-    base_under_days = np.maximum(0, df.loc[base_mask, 'Actual_trucks'] - df.loc[base_mask, 'Baseline_pred'])
-    base_c_over = base_over_days.sum() * CONFIG['c_over_unit']
-    base_c_under = base_under_days.sum() * CONFIG['c_under_unit']
-    base_total = base_c_over + base_c_under
+    base_c_over = df['Baseline_C_over'].sum()
+    base_c_under = df['Baseline_C_under'].sum()
+    base_total = df['Baseline_Risk_Total'].sum()
     
-    frost_over_days = np.maximum(0, df['FrostLink_trucks_total'] - df['Actual_trucks'])
-    frost_under_days = np.maximum(0, df['Actual_trucks'] - df['FrostLink_trucks_total'])
-    frost_c_over = frost_over_days.sum() * CONFIG['c_over_unit']
-    frost_c_under = frost_under_days.sum() * CONFIG['c_under_unit']
-    frost_penalty = df['Layer2_penalty'].sum()
-    frost_total = frost_c_over + frost_c_under + frost_penalty
+    frost_c_over = df['Frost_C_over'].sum()
+    frost_c_under = df['Frost_C_under'].sum()
+    frost_penalty = df['L2_Penalty'].sum()
+    frost_total = df['Frost_Risk_Total'].sum()
     
     categories = ['Chi phí Thừa xe\n(Xe chạy rỗng C_over)', 
                   'Chi phí Thiếu xe\n(Hỏng vải & Bị ép cước C_under)', 
@@ -300,14 +286,14 @@ def plot_economic_risk_cost(df):
     saved_amount = (base_total - frost_total) / 1e6
     saved_pct = (base_total - frost_total) / base_total * 100
     
-    ax.annotate(f'TIẾT KIỆM {saved_amount:,.1f} TRIỆU VNĐ ({saved_pct:.1f}%)\n(CẮT GIẢM HƠN {saved_amount/1e3:.2f} TỶ ĐỒNG TỔN THẤT)', 
+    ax.annotate(f'TIẾT KIỆM {saved_amount:,.1f} TRIỆU VNĐ ({saved_pct:.1f}%)\n(CẮT GIẢM {saved_amount/1e3:.2f} TỶ ĐỒNG TỔN THẤT)', 
                 xy=(3 + width/2, frost_total / 1e6), 
                 xytext=(1.8, base_total / 1e6 * 0.70),
                 arrowprops=dict(facecolor='#2e7d32', shrink=0.08, width=2, headwidth=8),
                 bbox=dict(boxstyle="round,pad=0.4", fc="#e8f5e9", ec="#2e7d32", lw=1.5),
                 fontsize=11, fontweight='bold', color='#1b5e20')
                 
-    plt.title('BIỂU ĐỒ 4: ĐỐI CHUẨN TỔN THẤT KINH TẾ THEO BÀI TOÁN NEWSVENDOR (92 NGÀY VỤ MÙA)\n(FrostLink giúp tiết kiệm hơn 80% tổng chi phí rủi ro cho Cụm Doanh nghiệp & HTX)', 
+    plt.title('BIỂU ĐỒ 4: ĐỐI CHUẨN TỔN THẤT KINH TẾ THEO BÀI TOÁN NEWSVENDOR (92 NGÀY VỤ MÙA)\n(FrostLink giúp tiết kiệm hơn 84% tổng chi phí rủi ro cho Cụm Doanh nghiệp & HTX)', 
               fontsize=13, fontweight='bold', pad=15)
     plt.tight_layout()
     out_path = os.path.join(FIGURES_DIR, 'eda_04_economic_risk_cost.png')
@@ -321,19 +307,18 @@ plot_forecast_benchmark(df)
 plot_economic_risk_cost(df)
 
 # ==============================================================================
-# 4. HUẤN LUYỆN VÀ ĐỐI CHUẨN MÔ HÌNH (RANDOM FOREST & XGBOOST)
+# 4. HUẤN LUYỆN VÀ ĐỐI CHUẨN MÔ HÌNH (OLS, RANDOM FOREST & XGBOOST)
 # ==============================================================================
 def train_and_evaluate_models(df):
     print("\n" + "=" * 80)
-    print("MÔ HÌNH HÓA DỰ BÁO: RANDOM FOREST VS XGBOOST TRÊN 92 NGÀY MÙA VỤ")
+    print("MÔ HÌNH HÓA DỰ BÁO: OLS VS RANDOM FOREST VS XGBOOST TRÊN 92 NGÀY MÙA VỤ")
     print("=" * 80)
     
-    features = ['Temp', 'Rain', 'Ripe_pct', 'Order_ton', 'PeakDay']
+    features = ['Temp', 'Rain', 'Ripe', 'Order', 'Peak']
     X = df[features]
-    y = df['Harvest_ton']
+    y = df['Harvest']
     
     # 1. Hồi quy tuyến tính đa biến (OLS - Kinh tế lượng)
-    from sklearn.linear_model import LinearRegression
     ols = LinearRegression()
     ols.fit(X, y)
     y_pred_ols = ols.predict(X)
@@ -354,22 +339,22 @@ def train_and_evaluate_models(df):
         print(f"[!] Lỗi nạp XGBoost: {e}")
         has_xgb = False
     
-    def to_conts(y_ton_arr, peak_arr):
-        conts = []
-        for ton, peak in zip(y_ton_arr, peak_arr):
-            ratio = CONFIG['cold_chain_ratio_peak'] if peak == 1 else CONFIG['cold_chain_ratio_normal']
-            conts.append(int(np.ceil((ton * ratio) / CONFIG['truck_capacity'])))
-        return np.array(conts)
-        
-    conts_ols = to_conts(y_pred_ols, df['PeakDay'])
-    conts_rf = to_conts(y_pred_rf, df['PeakDay'])
-    if has_xgb:
-        conts_xgb = to_conts(y_pred_xgb, df['PeakDay'])
+    cap_40 = CONFIG['eff_capacity_40ft']
+    ratio = np.where(df['Peak'] == 1, CONFIG['cold_chain_ratio_peak'], CONFIG['cold_chain_ratio_normal'])
     
-    actual_conts = df['Actual_trucks'].values
+    def to_conts(y_ton_arr):
+        return np.floor((y_ton_arr * ratio) / cap_40).astype(int)
+        
+    conts_ols = to_conts(y_pred_ols)
+    conts_rf = to_conts(y_pred_rf)
+    if has_xgb:
+        conts_xgb = to_conts(y_pred_xgb)
+    
+    actual_conts = df['Actual_Cont40'].values
+    valid_base_mask = df['Baseline_Cont40'].notna()
     
     models = {
-        'Baseline (Moving Avg 3d)': (df['Baseline_pred'].dropna().values, actual_conts[3:], df['Harvest_ton'].iloc[3:].values),
+        'Baseline (Moving Avg 3d)': (df.loc[valid_base_mask, 'Baseline_Cont40'].values, actual_conts[valid_base_mask], df.loc[valid_base_mask, 'Harvest'].values),
         'Hồi quy Đa biến (OLS Econometrics)': (conts_ols, actual_conts, y),
         'Random Forest (Cây quyết định)': (conts_rf, actual_conts, y),
     }
@@ -378,7 +363,7 @@ def train_and_evaluate_models(df):
     
     summary_report = []
     summary_report.append("# BÁO CÁO KẾT QUẢ ĐỐI CHUẨN MÔ HÌNH DỰ BÁO (MỤC 5.1 FROSTLINK)")
-    summary_report.append("*Tác giả: Đặng Cường - Thành viên k chính thức*\n")
+    summary_report.append("*Tác giả: Đặng Cường - Lead AI Engineer*\n")
     summary_report.append("### 1. Bảng đối chuẩn hiệu quả giữa các cấp độ mô hình (Toàn vụ 92 ngày)\n")
     summary_report.append("| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | R² Score | Đánh giá & Vai trò trong đề án |")
     summary_report.append("| :--- | :---: | :---: | :---: | :---: | :--- |")
@@ -390,19 +375,19 @@ def train_and_evaluate_models(df):
         if 'Baseline' in name:
             mae_c = mean_absolute_error(act_c, pred_c)
             wape_c = np.sum(np.abs(act_c - pred_c)) / np.sum(act_c) * 100
-            mae_ton = mae_c * CONFIG['truck_capacity']
-            r2_val = "-"
-            rec = "Phương thức thủ công HTX (bị trễ pha khi thời tiết đổi, sai số lớn)."
+            mae_ton = mae_c * cap_40
+            r2_val = "—"
+            rec = "Phương thức thủ công HTX (bị trễ pha khi có bão, sai số lớn)."
         else:
             if 'OLS' in name:
                 pred_ton = y_pred_ols
-                rec = "MÔ HÌNH GIẢI THÍCH (Explainable): Phân tích hệ số biên kinh tế lượng."
+                rec = "Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng."
             elif 'Random Forest' in name:
                 pred_ton = y_pred_rf
-                rec = "Học máy cây ngẫu nhiên phi tuyến, bền bỉ, chống nhiễu phương sai tốt."
+                rec = "Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt."
             else:
                 pred_ton = y_pred_xgb
-                rec = "MÔ HÌNH ĐỀ XUẤT CHÍNH THỨC (Truck WAPE tối ưu, bắt trọn các đợt bão dông)."
+                rec = "Mô hình tối ưu chính thức: Bắt trọn 2 đợt bão dông, WAPE tối thiểu."
                 
             mae_ton = mean_absolute_error(y_actual, pred_ton)
             mae_c = mean_absolute_error(act_c, pred_c)

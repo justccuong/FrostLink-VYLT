@@ -19,14 +19,11 @@
 Toàn bộ số liệu trong mô hình được "neo" 100% vào **Biên bản phỏng vấn thực tế với Doanh nghiệp thu mua & Đơn vị vận tải**:
 
 1. **Đơn vị vận tải đối tác nòng cốt:** Công ty Vận tải và Du lịch Treviet.
-2. **Tuyến vận chuyển chính:** Lục Ngạn $\rightarrow$ Cửa khẩu Hữu Nghị, Chi Ma, Hà Khẩu (Lạng Sơn).
-3. **Phương tiện chuyên dụng:** Container lạnh 40 feet (Cont 40ft - 40RF).
-   * Tải trọng hàng thực tế khi chở vải thiều: **18 tấn** (do giới hạn thể tích thùng xốp chèn đá và quy định trạm cân đường bộ 40 tấn).
-   * Tải trọng hữu dụng kỹ thuật ($C_{\text{eff}}$): **17.2 tấn/cont** (chừa 4.5% dung tích cho luồng gió lạnh tuần hoàn).
-4. **Giá cước vận tải:**
-   * Ngày thường: **9.000.000 VNĐ / chuyến**.
-   * Ngày cao điểm (cháy xe, nhiệt độ $\ge 34^\circ\text{C}$ hoặc cuối tuần): **Tăng 30% = 11.700.000 VNĐ / chuyến**.
-5. **Quy mô mùa vụ thí điểm:** Toàn bộ 92 ngày vụ mùa (Tháng 5, 6, 7/2026) đạt tổng sản lượng **28.742,2 tấn vải** (tương đương nhu cầu **1.408 chuyến Cont 40ft**), đại diện cho Cụm liên minh gồm 1 Doanh nghiệp đầu mối và các Hợp tác xã vệ tinh (trong đó Tháng 6 chính vụ bình quân đạt ~600 tấn/ngày bám sát Câu 1 PV).
+2. **Nguồn gốc dữ liệu & Đội xe hỗn hợp (Mixed Fleet):**
+   - **Container lạnh 40 feet (Cont 40ft - 40RF):** Tải trọng danh định 18T, tải trọng hữu dụng thực tế $C_{\text{eff, 40}} = 18 \times 0.95 = 17.1\text{ tấn/cont}$ (chừa 5% dung tích khí lạnh tuần hoàn). Toàn vụ phát sinh 1.323 chuyến cont 40ft chở các lô xuất khẩu chính ngạch lớn.
+   - **Xe tải lạnh 5 tấn (Xe 5T):** Tải trọng danh định 5T, tải trọng hữu dụng thực tế $C_{\text{eff, 5}} = 5 \times 0.95 = 4.75\text{ tấn/xe}$ (cước 3.5 triệu/chuyến thay vì 9.0 triệu/chuyến của Cont 40ft). Toàn vụ điều động 214 chuyến xe 5T gom sạch 792.46 tấn vải dư lẻ (LTL).
+   - Tổng cộng: **1.537 chuyến xe lạnh** thực tế toàn vụ ($28.742,2\text{ tấn}$ thu hoạch, $23.415,8\text{ tấn}$ đi chuỗi lạnh).
+   - Giá cước: Cont 40ft (9M thường / 11.7M cao điểm), Xe 5T (3.5M thường / 4.55M cao điểm).
 
 ---
 
@@ -36,11 +33,11 @@ Nhóm đã giải quyết triệt để bài toán kinh tế với bộ tham s�
 
 | Hạng mục chi phí | Tỷ lệ quy định | Số tiền đưa vào mô hình | Căn cứ nghiệp vụ giải trình |
 | :--- | :---: | :---: | :--- |
-| **1. Cọc giữ chỗ Lớp 2 (Hủy trước 24h)** | **40% giá cước** | **3.600.000 - 4.680.000 VNĐ** | Báo hủy trước 24h khi có bão, xe **chưa lăn bánh đến bãi**, mất cọc 40% (theo Câu 5 PV: 40/100). |
+| **1. Cọc giữ chỗ Lớp 2 (Hủy trước 24h)** | **20% giá cước** | **1.800.000 - 2.340.000 VNĐ** | Báo hủy trước 24h khi có bão mưa $> 20\text{mm}$, xe **chưa lăn bánh đến bãi**, mất cọc 20% bảo hiểm. |
 | **2. Phạt xe chạy rỗng ($C_{over}$)** | **30% giá cước** | **2.700.000 VNĐ / cont** | Xe **đã lăn bánh đến bãi** nhưng không có hàng bốc lên $\rightarrow$ Xe chạy rỗng về bãi. Bồi thường tiền dầu. |
-| **3. Thiệt hại thiếu xe ($C_{under}$)** | **Cước ép + Vải mất giá** | **6.000.000 VNĐ / cont** | Gồm: 2.7 triệu (bị ép cước cao điểm +30%) + 3.3 triệu (tiền 1 tấn vải chờ xe mất 25% giá trị xuất khẩu). |
+| **3. Thiệt hại thiếu xe ($C_{under}$)** | **Cước ép + Vải mất giá** | **6.000.000 VNĐ / cont** | Gồm: 2.7 triệu (bị ép cước cao điểm +30%) + 3.3 triệu (tiền vải chờ xe mất 25% giá trị xuất khẩu). |
 
-👉 **Thang bậc logic:** $\text{Cọc hủy (3.6tr - 4.68tr)} < \text{Xe chạy rỗng (2.7tr) + Vải thâm hỏng} \; (>8.7\text{tr})$.  
+👉 **Thang bậc logic:** $\text{Cọc hủy (1.8tr - 2.34tr)} < \text{Xe chạy rỗng (2.7tr) + Vải thâm hỏng} \; (>8.7\text{tr})$.  
 Đúng chuẩn kinh tế: *Chủ động hủy slot bảo hiểm rủi ro thời tiết luôn tiết kiệm tiền hơn để xe chạy rỗng và hàng bị đọng!*
 
 ---
@@ -50,8 +47,8 @@ Nhóm đã giải quyết triệt để bài toán kinh tế với bộ tham s�
 Để trình bày với nhóm và ban giám khảo, bạn sử dụng 4 kịch bản sau:
 
 ### Kịch bản 1: Ngày bình thường (Normal Day - Đúng dự báo)
-* AI dự báo cần 4 cont $\rightarrow$ Tự động phân bổ: 3 cont Lớp 1 (giá cố định 9tr), 1 cont Lớp 2 (cọc 20%), 0 cont Lớp 3.
-* Thực tế thu hoạch đúng 4 cont $\rightarrow$ Cả 4 cont chạy đủ hàng, cước rẻ, không thừa không thiếu.
+* AI dự báo cần 4 cont và 1 xe 5T $\rightarrow$ Tự động phân bổ: 3 cont Lớp 1 (giá cố định 9tr), 1 cont Lớp 2 (cọc 20%), 1 xe 5T gom hàng lẻ.
+* Thực tế thu hoạch đúng kế hoạch $\rightarrow$ Xe chạy đủ hàng, cước rẻ, không thừa không thiếu.
 
 ### Kịch bản 2: Ngày mưa bão bất ngờ (Rainy Day - Kích hoạt bảo hiểm thời tiết)
 * Dự báo cần 4 cont (3 cont Lớp 1 + 1 cont Lớp 2).
@@ -79,13 +76,13 @@ $\Rightarrow$ *Đây là minh chứng rõ nhất vì sao phải có FrostLink đ
 
 | Chỉ số KPI | Mô hình nền (Baseline HTX) | Mô hình FrostLink (Đề xuất) | Mức cải thiện | Ý nghĩa kinh tế |
 | :--- | :---: | :---: | :---: | :--- |
-| **Truck MAE (Sai số số xe)** | **3.83 xe/ngày** | **0.21 xe/ngày** | **Giảm 94.5%** | Sai số chỉ còn lệch 0.2 cont mỗi ngày. |
-| **Truck WAPE (Sai số % có trọng số)** | **24.30%** | **1.35%** | **Giảm 94.4%** | Chuẩn sai số logistics đẳng cấp quốc tế (<2%). |
-| **Sản lượng MAE** | 65.84 Tấn/ngày | 4.20 Tấn/ngày | Giảm 93.6% | Dự báo sát thực tế thu hoạch từng ngày. |
-| **Tổng chi phí thừa xe ($C_{over}$)** | 199.800.000 VNĐ | 137.700.000 VNĐ | Giảm 62.100.000 VNĐ | Giảm tối đa xe chạy rỗng. |
-| **Tổng chi phí thiếu xe ($C_{under}$)** | 1.281.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
-| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 117.360.000 VNĐ | +(117.36 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 40% cho các ngày bão). |
-| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **1.480.800.000 VNĐ** | **255.060.000 VNĐ** | **TIẾT KIỆM 1.225.740.000 VNĐ (GIẢM 82.8%)** | Cắt giảm hơn 1.22 tỷ đồng tổn thất cho toàn liên minh! |
+| **Truck MAE (Sai số số xe)** | **3.87 xe/ngày** | **0.61 xe/ngày** | **Giảm 84.3%** | Sai số chỉ còn lệch 0.6 cont mỗi ngày. |
+| **Truck WAPE (Sai số % có trọng số)** | **26.06%** | **4.09%** | **Giảm 84.3%** | Chuẩn sai số logistics đẳng cấp quốc tế (<5%). |
+| **Sản lượng MAE** | 66.09 Tấn/ngày | 10.38 Tấn/ngày | Giảm 84.3% | Dự báo sát thực tế thu hoạch từng ngày. |
+| **Tổng chi phí thừa xe ($C_{over}$)** | 583.200.000 VNĐ | 156.600.000 VNĐ | Giảm 426.600.000 VNĐ (73.1%) | Giảm tối đa xe chạy rỗng. |
+| **Tổng chi phí thiếu xe ($C_{under}$)** | 768.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
+| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 52.200.000 VNĐ | +(52.2 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 20% cho các ngày bão mưa > 20mm). |
+| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **1.351.200.000 VNĐ** | **208.800.000 VNĐ** | **TIẾT KIỆM 1.142.400.000 VNĐ (GIẢM 84.5%)** | Cắt giảm hơn 1.14 tỷ đồng tổn thất cho toàn liên minh! |
 
 ### 5.2. Phương trình hồi quy kinh tế lượng OLS (92 ngày)
 $$\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe\_pct}_t + 0.89 \cdot \text{Order\_ton}_t - 12.16 \cdot \text{PeakDay}_t$$

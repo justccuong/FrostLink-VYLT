@@ -97,7 +97,7 @@ model = xgb.XGBRegressor(
   *"Dạ thưa Thầy/Cô, nhóm đã lường trước nguy cơ này ngay từ khâu thiết kế thuật toán nên đã áp dụng 3 cơ chế phòng vệ chống Overfitting cực kỳ nghiêm ngặt:  
   1. **Khống chế độ sâu cây (Pruning):** Nhóm cố định `max_depth = 3`. Cây chỉ được phép hỏi tối đa 3 câu điều kiện thực tế (Mưa, Nhiệt độ, Ngày cao điểm), loại bỏ hoàn toàn khả năng chia nhánh phức tạp để học vẹt dữ liệu.  
   2. **Thu hẹp tốc độ học (Shrinkage):** Cài đặt `learning_rate = 0.08` rất nhỏ, mỗi cây chỉ hiệu chỉnh một phần sai số nhỏ chứ không ghi nhớ điểm dữ liệu.  
-  3. **Quy đổi tác nghiệp theo hàm trần (Ceiling discretization):** Dự báo sản lượng sau đó được nén qua hàm trần tải trọng Cont 40ft ($17.2\text{ tấn}$) và rổ phân bổ 3 Lớp công suất. Điều này triệt tiêu mọi dao động nhỏ của thuật toán trước khi biến thành quyết định điều xe thực tế."*
+  3. **Quy đổi tác nghiệp theo hàm trần/sàn (Discretization) & Đội xe hỗn hợp:** Dự báo sản lượng sau đó được nén qua định mức tải trọng hữu dụng Cont 40ft ($18 \times 0.95 = 17.1\text{ tấn}$) và Xe 5T ($5 \times 0.95 = 4.75\text{ tấn}$) cùng rổ phân bổ 3 Lớp công suất. Điều này triệt tiêu mọi dao động nhỏ của thuật toán trước khi biến thành quyết định điều xe thực tế."*
 
 ### ❓ Câu hỏi 2: "Tại sao nhóm chọn XGBoost và Random Forest mà không dùng Deep Learning hay LSTM?"
 * **Trả lời chuẩn:**  

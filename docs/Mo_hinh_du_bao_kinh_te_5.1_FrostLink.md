@@ -89,21 +89,33 @@ $$\hat{Y}_t = 258.76 - 6.64 \cdot \text{Temp}_t + 0.08 \cdot \text{Rain}_t - 45.
   * $\beta_4 = 1.00$: Cứ thêm 1 tấn đơn hàng xuất khẩu được chốt trước, HTX kích hoạt thu hoạch thêm đúng 1 tấn vải phục vụ đơn.
   * $\beta_5 = 8.72$: Ngày cao điểm dồn hàng cuối tuần (Thứ Năm, Thứ Sáu) thúc đẩy sản lượng gom tăng 8.72 tấn để kịp thông quan cửa khẩu.
 
-### 4.2. Bước 2: Công thức quy đổi tác nghiệp sang Số slot xe lạnh ($N_{\text{trucks}, t}$)
-Dân kinh tế và logistics cần một công thức chuyển giao tác nghiệp rõ ràng chứ không dừng lại ở số tấn trừu tượng:
+### 4.2. Bước 2: Quy đổi tác nghiệp Đội xe hỗn hợp: Cont 40ft & Xe 5T ($C_{\text{eff}} = C_{\text{nom}} \times 0.95$)
+Dân kinh tế và logistics cần một công thức chuyển giao tác nghiệp rõ ràng, tối ưu chi phí bằng đội xe hỗn hợp (Mixed Fleet) thay vì chỉ dùng duy nhất xe công 40:
 
-$$N_{\text{trucks}, t} = \left\lceil \frac{Y_t \times \alpha_t}{C_{\text{eff}}} \right\rceil$$
+1. **Số lượng Container 40 feet (Cont 40ft - Lô hàng lớn chính ngạch):**
+   $$N_{\text{cont40}, t} = \left\lfloor \frac{Y_t \times \alpha_t}{18 \times 0.95} \right\rfloor$$
+
+2. **Lượng vải dư lẻ sau khi đóng cont (Hàng lẻ LTL):**
+   $$Y_{\text{rem}, t} = (Y_t \times \alpha_t) \bmod (18 \times 0.95) \quad (\text{Tấn})$$
+
+3. **Số lượng Xe tải lạnh 5T (Xe 5T gom vét hàng lẻ):**
+   $$N_{\text{truck5}, t} = \begin{cases} \left\lceil \frac{Y_{\text{rem}, t}}{5 \times 0.95} \right\rceil, & \text{khi } Y_{\text{rem}, t} > 0 \\ 0, & \text{khi } Y_{\text{rem}, t} = 0 \end{cases}$$
+
+4. **Tổng số phương tiện lạnh điều phối:**
+   $$N_{\text{total}, t} = N_{\text{cont40}, t} + N_{\text{truck5}, t}$$
 
 * Trong đó:
   * $Y_t$: Sản lượng thu hoạch dự báo ngày $t$ (Tấn).
   * $\alpha_t$: Tỷ lệ hàng đạt tiêu chuẩn đi đường dài/xuất khẩu bắt buộc dùng chuỗi lạnh ($\alpha_t \approx 0.80 - 0.85$). Khoảng 15–20% còn lại là vải tiêu thụ chợ truyền thống lân cận đi xe tải thường có phủ bạt đá cây.
-  * $C_{\text{eff}}$: Tải trọng hữu dụng thực tế của Container lạnh 40 feet (Effective 40RF Capacity). Theo khảo sát nhà xe Treviet, định mức tải trọng là $C_{\text{eff}} = 17.2$ tấn/cont (đã trừ 4.5% dung tích tuần hoàn khí lạnh và khối lượng thùng xốp chèn đá).
-  * $\lceil \dots \rceil$: Hàm trần (Ceiling function) làm tròn lên số nguyên slot xe gần nhất.
+  * $C_{\text{eff, 40}} = 18 \times 0.95 = 17.1$ tấn/cont: Tải trọng hữu dụng thực tế của Container 40 feet lạnh (chừa 5% dung tích tuần hoàn khí lạnh theo khảo sát Treviet).
+  * $C_{\text{eff, 5}} = 5 \times 0.95 = 4.75$ tấn/xe: Tải trọng hữu dụng xe tải lạnh 5T gom vét hàng lẻ (cước 3.5 triệu/chuyến, tránh lãng phí 9.0 triệu/chuyến khi dùng Cont 40ft).
+  * $\lfloor \dots \rfloor$: Hàm sàn (Floor function - đóng kín cont).
+  * $\lceil \dots \rceil$: Hàm trần (Ceiling function - chở sạch hàng lẻ).
 
-### 4.3. Bước 3: Thuật toán phân bổ công suất 3 lớp (3-Tier Capacity Booking)
-$$N_{1, t} = \text{round}\left(N_{\text{pred}, t} \times 70\%\right)$$
-$$N_{2, t} = \min\left(\left\lceil N_{\text{pred}, t} \times 20\%\right\rceil, \; \max\left(0, \; N_{\text{pred}, t} - N_{1, t}\right)\right)$$
-$$N_{3, t} = \max\left(0, \; N_{\text{actual}, t} - N_{1, t} - N_{2, \text{run}, t}\right)$$
+### 4.3. Bước 3: Thuật toán phân bổ công suất 3 lớp cho Cont 40ft (3-Tier Capacity Booking)
+$$N_{1, t} = \text{round}\left(N_{\text{cont40, pred}, t} \times 70\%\right)$$
+$$N_{2, t} = \min\left(\left\lceil N_{\text{cont40, pred}, t} \times 20\%\right\rceil, \; \max\left(0, \; N_{\text{cont40, pred}, t} - N_{1, t}\right)\right)$$
+$$N_{3, t} = \max\left(0, \; N_{\text{cont40, actual}, t} - N_{1, t} - N_{2, \text{run}, t}\right)$$
 
 ---
 
@@ -146,19 +158,20 @@ $$\text{Total\_Cost} = \sum_{t=1}^n \left[ C_{\text{over}} \cdot \max(0, \, U_t 
     phải quay đầu chạy rỗng về bãi.                                hàng suy giảm chất lượng xuất khẩu.
   - Chi phí tổn thất (C_over):                                   - Chi phí tổn thất (C_under):
     Phạt xe rỗng (30% cước chạy rỗng):                             + Cước ép giờ cao điểm: 2.700.000 VNĐ
-    = 2.700.000 VNĐ / cont                                         + 1 tấn vải phơi nắng mất 25% giá trị: 3.300.000 VNĐ
+    = 2.700.000 VNĐ / cont                                         + Vải phơi nắng mất 25% giá trị: 3.300.000 VNĐ
                                                                    = 6.000.000 VNĐ / cont
 ```
 
 > **Bất đẳng thức kinh tế cốt lõi:**  
-> $$\text{Deposit}_{L2} \; (1.8\,\text{tr}) \; < \; C_{\text{over}} \; (2.7\,\text{tr}) \; < \; C_{\text{under}} \; (6.0\,\text{tr})$$
-> * Việc mất 1.8 triệu tiền cọc Lớp 2 để hủy xe trước 24h khi có bão luôn tiết kiệm hơn việc để xe đến bãi bị phạt 2.7 triệu xe chạy rỗng, và ngăn ngừa triệt để tổn thất 6.0 triệu do thiếu xe.
-> * **Kết quả định lượng vụ mùa:** Giảm tổng chi phí rủi ro từ **97.7 triệu đồng** (Baseline) xuống còn **27.9 triệu đồng** (FrostLink), tiết kiệm **69.8 triệu đồng (71.4%)**.
+> $$\text{Deposit}_{L2} \; (1.8\,\text{tr} - 2.34\,\text{tr}) \; < \; C_{\text{over}} \; (2.7\,\text{tr}) \; < \; C_{\text{under}} \; (6.0\,\text{tr})$$
+> * Việc mất 1.8 - 2.34 triệu tiền cọc Lớp 2 để hủy xe trước 24h khi có bão luôn tiết kiệm hơn việc để xe đến bãi bị phạt 2.7 triệu xe chạy rỗng, và ngăn ngừa triệt để tổn thất 6.0 triệu do thiếu xe.
+> * **Kết quả định lượng toàn vụ 92 ngày:** Giảm tổng chi phí rủi ro từ **1.351 tỷ đồng** (Baseline) xuống còn **208.8 triệu đồng** (FrostLink), tiết kiệm **1.142 tỷ đồng (84.5%)**.
 
 ### Cơ chế đặt xe 3 lớp công suất (3-Tier Capacity Booking)
-1. **Lớp 1 - Slot cam kết cứng (Firm Commitment - 70% nhu cầu):** Giữ trước 3–7 ngày với nhà xe Treviet để hưởng giá cước cố định (9 triệu/chuyến).
-2. **Lớp 2 - Slot linh hoạt có quyền chọn (Flex Option - 20%):** Trả phí cọc 20% (1.8 triệu). Nếu trước 24h có bão lớn làm giảm thu hoạch, HTX có quyền hủy slot này, nhà xe nhận trọn tiền cọc và không phải đưa xe chạy rỗng đến bãi.
-3. **Lớp 3 - Thị trường giao ngay (Spot Market Buffer - 10%):** Bù đắp tức thì khi thời tiết nắng nóng đột biến làm sản lượng vượt kịch bản.
+1. **Lớp 1 - Slot cam kết cứng (Firm Commitment - 70% Cont 40ft):** Giữ trước 3–7 ngày với nhà xe Treviet để hưởng giá cước cố định (9 triệu/chuyến).
+2. **Lớp 2 - Slot linh hoạt có quyền chọn (Flex Option - 20% Cont 40ft):** Trả phí cọc 20% (1.8 triệu). Nếu trước 24h có mưa lớn > 20mm làm giảm thu hoạch, HTX có quyền hủy slot này, nhà xe nhận trọn tiền cọc và không phải đưa xe chạy rỗng đến bãi.
+3. **Lớp 3 - Thị trường giao ngay (Spot Market Buffer):** Bù đắp tức thì khi sản lượng thực tế vượt kịch bản.
+4. **Đội xe tải lạnh 5T:** Bốc xếp và giải tỏa toàn bộ vải dư lẻ (LTL) với chi phí thấp (3.5 triệu/chuyến), không để lãng phí cont 40ft.
 
 ---
 
