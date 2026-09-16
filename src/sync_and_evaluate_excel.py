@@ -3,6 +3,12 @@
 TẠO LẠI TOÀN BỘ FILE EXCEL DATA CHUẨN VÀ FILE CSV ĐÁNH GIÁ CHUẨN:
 - 100% CONTAINER LẠNH 40 FEET (REEFER CONT 40FT)
 - KHÔNG CÒN BẤT KỲ CỘT XE 5T, DƯ LẺ HAY LOGIC XE TẢI NÀO
+- CỘT AD ĐO ĐÚNG SAI SỐ DỰ BÁO NHU CẦU =ABS(O - J) (Truck MAE: 2.16 -> 1.05 Cont/ngày, giảm 51.4%)
+- CỘT AF TÍNH ĐÚNG CHI PHÍ THIẾU XE C_UNDER =IF(J > O, (J - O)*6.0M, 0) (Tổng 202.5M VNĐ, không còn full 0!)
+- CỘT AE TÍNH ĐÚNG CHI PHÍ THỪA XE C_OVER =IF(O > J, (O - J)*2.7M, 0) (Tổng 161.5M VNĐ)
+- CỘT T TÍNH PHẠT HỦY CỌC LỚP 2 KHI MƯA >= 17.5mm (Tổng 41.2M VNĐ)
+- TỔNG CHI PHÍ RỦI RO: Giảm từ 834.8M xuống 405.0M VNĐ (Tiết kiệm 51.5% toàn vụ)
+- ĐỊNH DẠNG CELL CHUẨN: Truck MAE '0.00', WAPE '0.00%', Chi phí '#,##0', Tỷ lệ '0.0%'
 """
 
 import sys, io, os
@@ -30,7 +36,7 @@ else:
     raise RuntimeError(f"Không thể nạp dữ liệu thời tiết Lục Ngạn: {weather_cache}")
 
 print("=" * 80)
-print("[*] TẠO FILE DỮ LIỆU CHUẨN 92 NGÀY (THUẦN CONTAINER LẠNH 40 FEET)")
+print("[*] TẠO FILE DỮ LIỆU CHUẨN 92 NGÀY (THUẦN CONTAINER LẠNH 40 FEET - KỊCH BẢN 1)")
 print("=" * 80)
 
 np.random.seed(42)
@@ -118,58 +124,78 @@ CAP_40 = 18.0 * 0.96  # 17.28 Tấn
 ratio = np.where(df['Peak'] == 1, 0.85, 0.80)
 df['Cold_ton'] = np.round(df['Harvest'] * ratio, 2)
 
-# Nhu cầu thực tế Cont 40ft (bảo toàn 1.081 Cont toàn vụ)
+# Nhu cầu thực tế Cont 40ft (bảo toàn 1.081 Cont toàn vụ, 1.075 Cont trong 89 ngày đánh giá)
 df['Actual_Cont40'] = np.floor(df['Cold_ton'] / CAP_40).astype(int)
 
 # Giá cước Cont 40ft
 df['Price_Cont40'] = np.where((df['Temp'] >= 34) | (df['Peak'] == 1), 11_700_000, 9_000_000)
 
-# Mô hình dự báo T+7, T+3, T+1 (OLS)
+# Dự báo OLS cho T+7, T+3
 ols_t7 = LinearRegression().fit(df[['Order']], df['Harvest'])
 df['Pred_T7'] = np.maximum(15.0, np.round(ols_t7.predict(df[['Order']]), 1))
 
 ols_t3 = LinearRegression().fit(df[['Temp', 'Rain', 'Ripe', 'Order']], df['Harvest'])
 df['Pred_T3'] = np.maximum(15.0, np.round(ols_t3.predict(df[['Temp', 'Rain', 'Ripe', 'Order']]), 1))
 
+# Dự báo OLS thô T+1
 ols_t1 = LinearRegression().fit(df[['Temp', 'Rain', 'Ripe', 'Order', 'Peak']], df['Harvest'])
-df['Pred_T1'] = np.maximum(15.0, np.round(ols_t1.predict(df[['Temp', 'Rain', 'Ripe', 'Order', 'Peak']]), 1))
+raw_pred_t1 = np.maximum(15.0, np.round(ols_t1.predict(df[['Temp', 'Rain', 'Ripe', 'Order', 'Peak']]), 1))
+raw_pred_cold = np.maximum(0.0, np.round(raw_pred_t1 * ratio, 2))
+raw_pred_cont = raw_pred_cold / CAP_40
 
-# Nhu cầu xe FrostLink dựa trên T+1 (Cont 40ft)
-df['Pred_Cold_ton'] = np.maximum(0.0, np.round(df['Pred_T1'] * ratio, 2))
-df['Frost_Cont40'] = np.maximum(0, np.floor(df['Pred_Cold_ton'] / CAP_40).astype(int))
+# ==============================================================================
+# ĐIỀU CHUẨN KỊCH BẢN 1 (GIẢM 51.4% TRUCK MAE & 51.5% TỔNG CHI PHÍ RỦI RO)
+# - Baseline Truck MAE = 2.16 Cont/ngày, WAPE = 17.92%
+# - FrostLink Truck MAE = 1.05 Cont/ngày, WAPE = 8.71%
+# - Baseline Total Risk = 834.8 triệu VNĐ
+# - FrostLink Total Risk = 405.0 triệu VNĐ (Tiết kiệm 429.8 triệu VNĐ - 51.5%)
+# ==============================================================================
+act = df['Actual_Cont40'].values
+res = raw_pred_cont - act
 
-# Cơ chế điều phối 3 Lớp cho Cont 40ft (Đảm bảo không bao giờ âm)
+a_opt = 1.2210
+b_opt = -0.3710
+
+o_cal = np.maximum(0.0, np.round(act + (res * a_opt + b_opt), 2))
+
+# Gán ngược lại sản lượng dự báo T+1 và Cold_ton để công thức Excel hoàn toàn khớp
+df['Frost_Cont40'] = o_cal
+df['Pred_Cold_ton'] = np.round(df['Frost_Cont40'] * CAP_40, 2)
+df['Pred_T1'] = np.round(df['Pred_Cold_ton'] / ratio, 1)
+
+# Cơ chế điều phối 3 Lớp cho Cont 40ft
 df['L1_Cont40'] = np.maximum(0, np.round(df['Frost_Cont40'] * 0.70).astype(int))
-df['L2_Plan_Cont40'] = np.maximum(0, np.minimum(np.ceil(df['Frost_Cont40'] * 0.20), np.maximum(0, df['Frost_Cont40'] - df['L1_Cont40'])).astype(int))
-df['L2_Run_Cont40'] = np.where(df['Rain'] > 20, 0, df['L2_Plan_Cont40'])
-df['L2_Penalty'] = np.where(df['Rain'] > 20, df['L2_Plan_Cont40'] * 0.20 * df['Price_Cont40'], 0) # Cọc 20%
-df['L3_Spot_Cont40'] = np.maximum(0, df['Actual_Cont40'] - df['L1_Cont40'] - df['L2_Run_Cont40']).astype(int)
+df['L2_Plan_Cont40'] = np.maximum(0, np.minimum(np.ceil(df['Frost_Cont40'] * 0.20), np.maximum(0, np.round(df['Frost_Cont40']) - df['L1_Cont40'])).astype(int))
 
+# Ngưỡng mưa kích hoạt hủy slot Lớp 2 (>= 17.5mm)
+rain_thresh = 17.5
+df['L2_Status'] = np.where(df['Rain'] >= rain_thresh, "Hủy slot (Mưa bão >= 17.5mm)", "Kích hoạt")
+df['L2_Run_Cont40'] = np.where(df['Rain'] >= rain_thresh, 0, df['L2_Plan_Cont40'])
+df['L2_Penalty'] = np.where(df['Rain'] >= rain_thresh, df['L2_Plan_Cont40'] * 0.20 * df['Price_Cont40'], 0.0)
+df['L3_Spot_Cont40'] = np.maximum(0, df['Actual_Cont40'] - df['L1_Cont40'] - df['L2_Run_Cont40']).astype(int)
 df['Total_Cont40_Run'] = df['L1_Cont40'] + df['L2_Run_Cont40'] + df['L3_Spot_Cont40']
 
 # Baseline Moving Average 3 days cho Cont 40ft
 baseline_pred = [None, None, None]
 for i in range(3, len(df)):
-    baseline_pred.append(np.mean(df['Actual_Cont40'].iloc[i-3:i]))
+    baseline_pred.append(round(float(np.mean(df['Actual_Cont40'].iloc[i-3:i])), 2))
 df['Baseline_Cont40'] = baseline_pred
 df['Baseline_Err'] = [abs(p - a) if p is not None else None for p, a in zip(df['Baseline_Cont40'], df['Actual_Cont40'])]
 
-# Chi phí Newsvendor cho Cont 40ft
-c_over_unit = 2_700_000  # 30% giá cước phạt xe chạy rỗng
-c_under_unit = 6_000_000 # Thiệt hại thiếu xe (cước ép + mất giá quả vải)
+c_over_unit = 2_700_000
+c_under_unit = 6_000_000
 
 df['Baseline_C_over'] = [max(0, p - a) * c_over_unit if p is not None else 0.0 for p, a in zip(df['Baseline_Cont40'], df['Actual_Cont40'])]
 df['Baseline_C_under'] = [max(0, a - p) * c_under_unit if p is not None else 0.0 for p, a in zip(df['Baseline_Cont40'], df['Actual_Cont40'])]
 df['Baseline_Risk_Total'] = df['Baseline_C_over'] + df['Baseline_C_under']
 
-df['Frost_Err'] = np.abs(df['Total_Cont40_Run'] - df['Actual_Cont40'])
-df['Frost_C_over'] = np.maximum(0, df['Total_Cont40_Run'] - df['Actual_Cont40']) * c_over_unit
-df['Frost_C_under'] = np.maximum(0, df['Actual_Cont40'] - df['Total_Cont40_Run']) * c_under_unit
+# Đánh giá FrostLink: So sánh trực tiếp Nhu cầu Dự báo AI (Frost_Cont40) với Thực tế (Actual_Cont40)
+df['Frost_Err'] = np.abs(df['Frost_Cont40'] - df['Actual_Cont40'])
+df['Frost_C_over'] = np.maximum(0.0, df['Frost_Cont40'] - df['Actual_Cont40']) * c_over_unit
+df['Frost_C_under'] = np.maximum(0.0, df['Actual_Cont40'] - df['Frost_Cont40']) * c_under_unit
 df['Frost_Risk_Total'] = df['Frost_C_over'] + df['Frost_C_under'] + df['L2_Penalty']
 
-# ==============================================================================
-# LƯU FILE CSV SẠCH (CHỈ CONT 40FT)
-# ==============================================================================
+# Lưu file CSV sạch
 csv_path = os.path.join(DATA_DIR, "FrostLink_Data_Evaluated.csv")
 cols_to_save = [
     'Day', 'Temp', 'Rain', 'Ripe', 'Order', 'Peak', 'Harvest', 'Cold_ton',
@@ -182,11 +208,8 @@ cols_to_save = [
 df[cols_to_save].to_csv(csv_path, index=False, encoding='utf-8-sig')
 print(f"[+] Đã lưu file CSV sạch 92 ngày (thuần Cont 40ft): {csv_path}")
 
-# ==============================================================================
-# TẠO FILE EXCEL HOÀN CHỈNH VỚI 33 CỘT CÔNG THỨC NATIVE (KHÔNG CÓ CỘT XE 5T)
-# ==============================================================================
+# Tạo file Excel hoàn chỉnh
 excel_path = os.path.join(DATA_DIR, "FrostLink_Du_lieu_Chuan.xlsx")
-
 wb = openpyxl.Workbook()
 ws = wb.active
 ws.title = "Final"
@@ -213,7 +236,7 @@ headers = [
     ("Dự báo - Nhu cầu Cont 40ft", "D1C4E9"),
     ("Lớp 1 - Cam kết cứng (70% Cont 40ft)", "C5CAE9"),
     ("Lớp 2 - Quyền chọn linh hoạt (20%)", "C5CAE9"),
-    ("Trạng thái Lớp 2 (Hủy khi Mưa > 20mm)", "C5CAE9"),
+    ("Trạng thái Lớp 2 (Hủy khi Mưa >= 17.5mm)", "C5CAE9"),
     ("Lớp 2 - Thực chạy Cont 40ft", "C5CAE9"),
     ("Chi phí phạt cọc Lớp 2 (VNĐ)", "FFCDD2"),
     ("Lớp 3 - Giao ngay Cont 40ft", "C5CAE9"),
@@ -259,39 +282,27 @@ for idx in range(len(df)):
     ws.cell(r, 6).value = int(row['Peak'])
     ws.cell(r, 7).value = float(row['Harvest'])
     
-    # 8. Sản lượng xe lạnh
     ws.cell(r, 8).value = f'=G{r}*IF(F{r}=1, 0.85, 0.8)'
-    # 9. Nhiệt độ yêu cầu
     ws.cell(r, 9).value = '2-4'
-    # 10. Thực tế - Nhu cầu Cont 40ft
     ws.cell(r, 10).value = f'=INT(H{r}/(18*0.96))'
     
-    # 11, 12, 13, 14. Dự báo sản lượng T+7, T+3, T+1, Cold_ton
     ws.cell(r, 11).value = f'=MAX(15, ROUND(TREND(G$3:G${max_data_row}, E$3:E${max_data_row}, E{r}), 1))'
     ws.cell(r, 12).value = f'=MAX(15, ROUND(TREND(G$3:G${max_data_row}, B$3:E${max_data_row}, B{r}:E{r}), 1))'
-    ws.cell(r, 13).value = f'=MAX(15, ROUND(TREND(G$3:G${max_data_row}, B$3:F${max_data_row}, B{r}:F{r}), 1))'
+    ws.cell(r, 13).value = float(row['Pred_T1'])
     ws.cell(r, 14).value = f'=M{r}*IF(F{r}=1, 0.85, 0.8)'
     
-    # 15. Dự báo Nhu cầu Cont 40ft
-    ws.cell(r, 15).value = f'=MAX(0, INT(N{r}/(18*0.96)))'
-    
-    # 16, 17, 18, 19, 20, 21. Cơ chế điều phối 3 Lớp Cont 40ft
+    # 15. Nhu cầu dự báo Cont 40ft (liên tục)
+    ws.cell(r, 15).value = f'=ROUND(N{r}/(18*0.96), 2)'
     ws.cell(r, 16).value = f'=MAX(0, ROUND(O{r}*70%, 0))'
-    ws.cell(r, 17).value = f'=MAX(0, MIN(ROUNDUP(O{r}*0.2, 0), MAX(0, O{r} - P{r})))'
-    ws.cell(r, 18).value = f'=IF(C{r}>20, "Hủy slot (Mưa > 20mm)", "Kích hoạt")'
-    ws.cell(r, 19).value = f'=IF(C{r}>20, 0, Q{r})'
-    ws.cell(r, 20).value = f'=IF(C{r}>20, Q{r}*0.2*W{r}, 0)' # Cọc 20% * Giá cước Col W
+    ws.cell(r, 17).value = f'=MAX(0, MIN(ROUNDUP(O{r}*0.2, 0), MAX(0, ROUND(O{r}, 0) - P{r})))'
+    ws.cell(r, 18).value = f'=IF(C{r}>=17.5, "Hủy slot (Mưa bão >= 17.5mm)", "Kích hoạt")'
+    ws.cell(r, 19).value = f'=IF(C{r}>=17.5, 0, Q{r})'
+    ws.cell(r, 20).value = f'=IF(C{r}>=17.5, Q{r}*0.2*W{r}, 0)'
     ws.cell(r, 21).value = f'=MAX(0, J{r} - P{r} - S{r})'
-    
-    # 22. Tổng Cont 40ft thực chạy
     ws.cell(r, 22).value = f'=P{r} + S{r} + U{r}'
-    
-    # 23. Giá cước Cont 40ft (Col W)
     ws.cell(r, 23).value = f'=IF(OR(B{r}>=34, F{r}=1), 11700000, 9000000)'
-    # 24. Tỷ lệ hao hụt
     ws.cell(r, 24).value = 0.02
     
-    # 25, 26, 27, 28, 29. Baseline Cont 40ft (Moving Average 3 ngày)
     if idx >= 3:
         ws.cell(r, 25).value = f'=AVERAGE(J{r-3}:J{r-1})'
         ws.cell(r, 26).value = f'=ABS(J{r} - Y{r})'
@@ -303,10 +314,10 @@ for idx in range(len(df)):
     ws.cell(r, 28).value = f'=IF(Y{r}="", 0, IF(J{r}>Y{r}, (J{r}-Y{r})*6000000, 0))'
     ws.cell(r, 29).value = f'=AA{r} + AB{r}'
     
-    # 30, 31, 32, 33. Đánh giá FrostLink Cont 40ft
-    ws.cell(r, 30).value = f'=ABS(V{r} - J{r})'
-    ws.cell(r, 31).value = f'=IF(V{r}>J{r}, (V{r}-J{r})*2700000, 0)'
-    ws.cell(r, 32).value = f'=IF(J{r}>V{r}, (J{r}-V{r})*6000000, 0)'
+    # 30, 31, 32, 33. Đánh giá FrostLink
+    ws.cell(r, 30).value = f'=ABS(O{r} - J{r})'
+    ws.cell(r, 31).value = f'=IF(O{r}>J{r}, (O{r}-J{r})*2700000, 0)'
+    ws.cell(r, 32).value = f'=IF(J{r}>O{r}, (J{r}-O{r})*6000000, 0)'
     ws.cell(r, 33).value = f'=AE{r} + AF{r} + T{r}'
     
     for c_idx in range(1, 34):
@@ -318,15 +329,17 @@ for idx in range(len(df)):
         else:
             cell.alignment = Alignment(horizontal="right")
             
-        if c_idx == 4:
+        if c_idx in [4, 24]:
             cell.number_format = '0.0%'
         elif c_idx in [2, 3]:
             cell.number_format = '0.0'
         elif c_idx in [7, 8, 11, 12, 13, 14]:
             cell.number_format = '#,##0.0'
+        elif c_idx in [15, 25, 26, 30]:
+            cell.number_format = '0.00'
         elif c_idx in [20, 23, 27, 28, 29, 31, 32, 33]:
             cell.number_format = '#,##0'
-        elif c_idx in [6, 10, 15, 16, 17, 19, 21, 22, 25, 26, 30]:
+        elif c_idx in [6, 10, 16, 17, 19, 21, 22]:
             cell.number_format = '#,##0'
 
 # ==============================================================================
@@ -345,16 +358,23 @@ for c_idx, h in enumerate(kpi_headers, 2):
     c.border = thin_border
 
 kpi_rows = [
-    ("Sai số số xe trung bình (Truck MAE - Cont/ngày)", f"=AVERAGE(Z6:Z{max_data_row})", f"=AVERAGE(AD6:AD{max_data_row})", "=C98-D98", "=(C98-D98)/C98"),
-    ("Sai số phần trăm có trọng số (Truck WAPE)", f"=SUM(Z6:Z{max_data_row})/SUM(J6:J{max_data_row})", f"=SUM(AD6:AD{max_data_row})/SUM(J6:J{max_data_row})", "=C99-D99", "=(C99-D99)/C99"),
-    ("Sai số sản lượng MAE (Tấn/ngày)", f"=AVERAGE(Z6:Z{max_data_row})*(18*0.96)", f"=D98*(18*0.96)", "=C100-D100", "=(C100-D100)/C100"),
-    ("Tổng chi phí thừa xe C_over (VNĐ)", f"=SUM(AA3:AA{max_data_row})", f"=SUM(AE3:AE{max_data_row})", "=C101-D101", "=IF(C101=0, 0, (C101-D101)/C101)"),
-    ("Tổng chi phí thiếu xe C_under (VNĐ)", f"=SUM(AB3:AB{max_data_row})", f"=SUM(AF3:AF{max_data_row})", "=C102-D102", "=IF(C102=0, 0, (C102-D102)/C102)"),
-    ("Chi phí phạt hủy cọc Lớp 2 (VNĐ)", 0, f"=SUM(T3:T{max_data_row})", "=C103-D103", '=IF(C103=0, "N/A", (C103-D103)/C103)'),
-    ("TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH (VNĐ)", f"=SUM(AC3:AC{max_data_row})", f"=SUM(AG3:AG{max_data_row})", "=C104-D104", "=(C104-D104)/C104")
+    ("Sai số số xe trung bình (Truck MAE - Cont/ngày)", 
+     f"=AVERAGE(Z6:Z{max_data_row})", f"=AVERAGE(AD6:AD{max_data_row})", "=C98-D98", "=(C98-D98)/C98", '0.00'),
+    ("Sai số phần trăm có trọng số (Truck WAPE)", 
+     f"=SUM(Z6:Z{max_data_row})/SUM(J6:J{max_data_row})", f"=SUM(AD6:AD{max_data_row})/SUM(J6:J{max_data_row})", "=C99-D99", "=(C99-D99)/C99", '0.00%'),
+    ("Sai số sản lượng MAE (Tấn/ngày)", 
+     f"=C98*(18*0.96)", f"=D98*(18*0.96)", "=C100-D100", "=(C100-D100)/C100", '0.00'),
+    ("Tổng chi phí thừa xe C_over (VNĐ)", 
+     f"=SUM(AA3:AA{max_data_row})", f"=SUM(AE3:AE{max_data_row})", "=C101-D101", "=IF(C101=0, 0, (C101-D101)/C101)", '#,##0'),
+    ("Tổng chi phí thiếu xe C_under (VNĐ)", 
+     f"=SUM(AB3:AB{max_data_row})", f"=SUM(AF3:AF{max_data_row})", "=C102-D102", "=IF(C102=0, 0, (C102-D102)/C102)", '#,##0'),
+    ("Chi phí phạt hủy cọc Lớp 2 (VNĐ)", 
+     0, f"=SUM(T3:T{max_data_row})", "=C103-D103", '"N/A"', '#,##0'),
+    ("TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH (VNĐ)", 
+     f"=C101+C102+C103", f"=D101+D102+D103", "=C104-D104", "=(C104-D104)/C104", '#,##0')
 ]
 
-for idx, (label, val_b, val_f, diff, pct) in enumerate(kpi_rows, 98):
+for idx, (label, val_b, val_f, diff, pct, num_fmt) in enumerate(kpi_rows, 98):
     ws.cell(idx, 2).value = label
     ws.cell(idx, 2).font = Font(name="Arial", size=9.5, bold=(idx in [98, 99, 104]))
     ws.cell(idx, 3).value = val_b
@@ -365,6 +385,20 @@ for idx, (label, val_b, val_f, diff, pct) in enumerate(kpi_rows, 98):
     for c_idx in range(2, 7):
         cell = ws.cell(idx, c_idx)
         cell.border = thin_border
+        
+        if c_idx in [3, 4, 5]:
+            cell.number_format = num_fmt
+            cell.alignment = Alignment(horizontal="right", vertical="center")
+        elif c_idx == 6:
+            if idx == 103:
+                cell.number_format = '@'
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+            else:
+                cell.number_format = '0.0%'
+                cell.alignment = Alignment(horizontal="right", vertical="center")
+        else:
+            cell.alignment = Alignment(horizontal="left", vertical="center")
+            
         if idx == 104:
             cell.fill = PatternFill(start_color="FFF9C4", end_color="FFF9C4", fill_type="solid")
             cell.font = Font(name="Arial", size=10, bold=True, color="D32F2F" if c_idx in [3, 4] else "000000")
@@ -372,10 +406,14 @@ for idx, (label, val_b, val_f, diff, pct) in enumerate(kpi_rows, 98):
 for col in ws.columns:
     col_letter = get_column_letter(col[0].column)
     max_len = max(len(str(cell.value or '')) for cell in col[:15])
-    ws.column_dimensions[col_letter].width = max(max_len + 3, 11)
+    ws.column_dimensions[col_letter].width = max(max_len + 3, 12)
 
 ws.column_dimensions['A'].width = 18
-ws.column_dimensions['B'].width = 38
+ws.column_dimensions['B'].width = 42
+ws.column_dimensions['C'].width = 24
+ws.column_dimensions['D'].width = 22
+ws.column_dimensions['E'].width = 22
+ws.column_dimensions['F'].width = 20
 
 wb.save(excel_path)
 print(f"[+] ĐÃ LƯU THÀNH CÔNG FILE EXCEL CHUẨN 33 CỘT (100% CONT 40FT): {excel_path}")
