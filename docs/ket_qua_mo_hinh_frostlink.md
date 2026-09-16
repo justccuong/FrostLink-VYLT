@@ -5,18 +5,18 @@
 
 | Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | R² Score | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Moving Avg 3d)** | 65.37 Tấn | 3.78 Xe/ngày | 25.80% | — | Phương thức thủ công HTX (bị trễ pha khi có bão, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.22 Xe/ngày | 15.60% | 0.929 | Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng. |
-| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.71 Xe/ngày | 4.97% | 0.991 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
-| **XGBoost (Gradient Boosting)** | 4.20 Tấn | 0.23 Xe/ngày | 1.61% | 0.999 | Mô hình tối ưu chính thức: Bắt trọn 2 đợt bão dông, WAPE tối thiểu. |
+| **Baseline (Moving Avg 3d)** | 37.41 Tấn | 2.16 Xe/ngày | 17.92% | — | Phương thức thủ công HTX (bị trễ pha khi có bão, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 17.29 Tấn | 0.82 Xe/ngày | 6.94% | 0.983 | Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng. |
+| **Random Forest (Cây quyết định)** | 7.15 Tấn | 0.26 Xe/ngày | 2.22% | 0.997 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
+| **XGBoost (Gradient Boosting)** | 2.39 Tấn | 0.07 Xe/ngày | 0.56% | 1.000 | Mô hình tối ưu chính thức: Bắt trọn 2 đợt bão dông, WAPE tối thiểu. |
 
 ### 2. Phương trình Hồi quy Tuyến tính Đa biến (OLS)
 
-$$\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe}_t + 0.89 \cdot \text{Order}_t - 12.16 \cdot \text{Peak}_t$$
+$$\hat{Y}_t = -22.05 + 1.60 \cdot \text{Temp}_t - 2.84 \cdot \text{Rain}_t + 45.80 \cdot \text{Ripe}_t + 0.85 \cdot \text{Order}_t + 10.76 \cdot \text{Peak}_t$$
 
 #### Ý nghĩa kinh tế của các hệ số biên (Marginal Effects):
-* **Temp ($\beta = +4.159$):** Khi biến `Temp` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 4.159 tấn.
-* **Rain ($\beta = -4.421$):** Khi biến `Rain` tăng 1 đơn vị, sản lượng thu hoạch dự báo giảm 4.421 tấn.
-* **Ripe ($\beta = +15.118$):** Khi biến `Ripe` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 15.118 tấn.
-* **Order ($\beta = +0.893$):** Khi biến `Order` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 0.893 tấn.
-* **Peak ($\beta = -12.158$):** Khi biến `Peak` tăng 1 đơn vị, sản lượng thu hoạch dự báo giảm 12.158 tấn.
+* **Temp ($\beta = +1.604$):** Khi biến `Temp` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 1.604 tấn.
+* **Rain ($\beta = -2.835$):** Khi biến `Rain` tăng 1 đơn vị, sản lượng thu hoạch dự báo giảm 2.835 tấn.
+* **Ripe ($\beta = +45.797$):** Khi biến `Ripe` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 45.797 tấn.
+* **Order ($\beta = +0.848$):** Khi biến `Order` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 0.848 tấn.
+* **Peak ($\beta = +10.761$):** Khi biến `Peak` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 10.761 tấn.

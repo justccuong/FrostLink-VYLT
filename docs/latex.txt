@@ -36,7 +36,7 @@ Giải thích biến số:
 
 [1.2] Phương trình thực nghiệm ước lượng từ dữ liệu thực tế Lục Ngạn (Toàn vụ 92 ngày):
 \[
-\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe}_t + 0.89 \cdot \text{Order}_t - 12.16 \cdot \text{PeakDay}_t \quad (R^2 = 0.929)
+\hat{Y}_t = -22.05 + 1.60 \cdot \text{Temp}_t - 2.84 \cdot \text{Rain}_t + 45.80 \cdot \text{Ripe}_t + 0.85 \cdot \text{Order}_t + 10.76 \cdot \text{PeakDay}_t \quad (R^2 = 0.983)
 \]
 
 

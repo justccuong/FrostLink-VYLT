@@ -76,21 +76,22 @@ $\Rightarrow$ *Đây là minh chứng rõ nhất vì sao phải có FrostLink đ
 
 | Chỉ số KPI | Mô hình nền (Baseline HTX) | Mô hình FrostLink (Đề xuất) | Mức cải thiện | Ý nghĩa kinh tế |
 | :--- | :---: | :---: | :---: | :--- |
-| **Truck MAE (Sai số số xe)** | **3.78 xe/ngày** | **1.11 xe/ngày** | **Giảm 70.6%** | Sai số chỉ còn lệch 1 cont mỗi ngày. |
-| **Truck WAPE (Sai số % có trọng số)** | **25.80%** | **7.59%** | **Giảm 70.6%** | Chuẩn sai số logistics quốc tế (<8%). |
-| **Sản lượng MAE** | 65.37 Tấn/ngày | 19.18 Tấn/ngày | Giảm 70.6% | Dự báo sát thực tế thu hoạch từng ngày. |
-| **Tổng chi phí thừa xe ($C_{over}$)** | 455.400.000 VNĐ | 283.500.000 VNĐ | Giảm 171.900.000 VNĐ (37.7%) | Giảm tối đa xe chạy rỗng. |
-| **Tổng chi phí thiếu xe ($C_{under}$)** | 1.008.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
-| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 57.420.000 VNĐ | +(57.42 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 20% cho các ngày bão mưa > 20mm). |
-| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **1.463.400.000 VNĐ** | **340.920.000 VNĐ** | **TIẾT KIỆM 1.122.480.000 VNĐ (GIẢM 76.7%)** | Cắt giảm hơn 1.12 tỷ đồng tổn thất cho toàn liên minh! |
+| **Truck MAE (Sai số số xe)** | **2.16 xe/ngày** | **0.18 xe/ngày** | **Giảm 91.5%** | Sai số xe tiệm cận 0, tối ưu hoàn hảo việc gọi xe. |
+| **Truck WAPE (Sai số % có trọng số)** | **17.92%** | **1.53%** | **Giảm 91.5%** | Chuẩn sai số logistics quốc tế xuất sắc (<2%). |
+| **Sản lượng MAE** | 37.41 Tấn/ngày | 3.19 Tấn/ngày | Giảm 91.5% | Dự báo cực sát thực tế thu hoạch từng ngày. |
+| **Tổng chi phí thừa xe ($C_{over}$)** | 137.700.000 VNĐ | 29.700.000 VNĐ | Giảm 108.000.000 VNĐ (78.4%) | Giảm tối đa xe chạy rỗng. |
+| **Tổng chi phí thiếu xe ($C_{under}$)** | 697.100.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
+| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 37.620.000 VNĐ | +(37.62 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 20% cho các ngày bão mưa >= 20mm). |
+| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **834.800.000 VNĐ** | **67.320.000 VNĐ** | **TIẾT KIỆM 767.480.000 VNĐ (GIẢM 91.9%)** | Cắt giảm hơn 767 triệu đồng tổn thất cho toàn liên minh! |
 
 ### 5.2. Phương trình hồi quy kinh tế lượng OLS (92 ngày)
-$$\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe\_pct}_t + 0.89 \cdot \text{Order\_ton}_t - 12.16 \cdot \text{PeakDay}_t$$
+$$\hat{Y}_t = -22.05 + 1.60 \cdot \text{Temp}_t - 2.84 \cdot \text{Rain}_t + 45.80 \cdot \text{Ripe\_pct}_t + 0.85 \cdot \text{Order\_ton}_t + 10.76 \cdot \text{PeakDay}_t$$
 
-* $R^2 = 0.929$ (Giải thích được 92.9% biến động sản lượng hàng ngày).
-* Cứ thêm 1 tấn đơn hàng chốt trước, hệ thống kích hoạt thu hoạch thêm **0.89 tấn** vải ($\beta = +0.893$).
-* Mỗi độ C nhiệt độ tăng thúc đẩy sản lượng thu hoạch tăng **4.16 tấn** do vải chín nhanh.
-* Mỗi mm mưa làm giảm sản lượng thu hoạch **4.42 tấn** do nông dân tạm dừng bẻ cành khi trời mưa.
+* $R^2 = 0.983$ (Giải thích được 98.3% biến động sản lượng hàng ngày).
+* Cứ thêm 1 tấn đơn hàng chốt trước, hệ thống kích hoạt thu hoạch thêm **0.85 tấn** vải ($\beta = +0.848$).
+* Mỗi độ C nhiệt độ tăng thúc đẩy sản lượng thu hoạch tăng **1.60 tấn** do vải chín nhanh và áp lực thu hoạch tránh cháy vỏ.
+* Mỗi mm mưa làm giảm sản lượng thu hoạch **2.84 tấn** do nông dân tạm dừng bẻ cành khi trời mưa.
+* Tỷ lệ chín quả thương phẩm ($88\% - 93\%$) thúc đẩy mạnh sản lượng thu hoạch rộ trong ngày ($\beta = +45.80$).
 
 ---
 

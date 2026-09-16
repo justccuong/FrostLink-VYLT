@@ -236,12 +236,12 @@ add_paragraph("Phương trình Hồi quy OLS thực nghiệm huấn luyện trê
 
 omml_ols_emp = (
     '<m:sSub><m:e><m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>Y</m:t></m:r></m:e></m:acc></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> = -85.32 + 4.16·</m:t></m:r><m:sSub><m:e><m:r><m:t>Temp</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> - 4.42·</m:t></m:r><m:sSub><m:e><m:r><m:t>Rain</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> + 15.12·</m:t></m:r><m:sSub><m:e><m:r><m:t>Ripe</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> + 0.89·</m:t></m:r><m:sSub><m:e><m:r><m:t>Order</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t> - 12.16·</m:t></m:r><m:sSub><m:e><m:r><m:t>PeakDay</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
-    '<m:r><m:t>   (</m:t></m:r><m:sSup><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>R</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup><m:r><m:t> = 0.929)</m:t></m:r>'
+    '<m:r><m:t> = -22.05 + 1.60·</m:t></m:r><m:sSub><m:e><m:r><m:t>Temp</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> - 2.84·</m:t></m:r><m:sSub><m:e><m:r><m:t>Rain</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> + 45.80·</m:t></m:r><m:sSub><m:e><m:r><m:t>Ripe</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> + 0.85·</m:t></m:r><m:sSub><m:e><m:r><m:t>Order</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t> + 10.76·</m:t></m:r><m:sSub><m:e><m:r><m:t>PeakDay</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub>'
+    '<m:r><m:t>   (</m:t></m:r><m:sSup><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>R</m:t></m:r></m:e><m:sup><m:r><m:t>2</m:t></m:r></m:sup></m:sSup><m:r><m:t> = 0.983)</m:t></m:r>'
 )
 p_ols_emp = doc.add_paragraph()
 p_ols_emp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -361,19 +361,65 @@ p_metrics.paragraph_format.space_before = Pt(4)
 p_metrics.paragraph_format.space_after = Pt(8)
 add_omml_math(p_metrics, omml_metrics)
 
+add_heading_2("4.1. Bảng đối chuẩn hiệu năng các cấp độ mô hình (Benchmark OLS, RF, XGBoost)")
+add_paragraph("Để chứng minh tính ưu việt của hệ thống dự báo thông minh, đề án tiến hành đối chuẩn 4 cấp độ mô hình trên toàn bộ 92 ngày mùa vụ:")
+
+tbl_models = doc.add_table(rows=5, cols=6)
+tbl_models.alignment = WD_TABLE_ALIGNMENT.CENTER
+tbl_models.autofit = False
+
+models_data = [
+    ["Cấp độ Mô hình", "MAE Sản lượng", "Truck MAE", "Truck WAPE", "R² Score", "Ý nghĩa & Vai trò trong Đề án"],
+    ["Baseline (Trung bình 3 ngày)", "37.41 Tấn", "2.16 Xe/ngày", "17.92%", "—", "Phương thức thủ công của HTX (trễ pha khi có bão)."],
+    ["Hồi quy Đa biến (OLS)", "17.29 Tấn", "0.82 Xe/ngày", "6.94%", "0.983", "Mô hình giải thích (Explainable): Phân tích hệ số biên."],
+    ["Random Forest (Cây quyết định)", "7.15 Tấn", "0.26 Xe/ngày", "2.22%", "0.997", "Học máy phi tuyến, bền bỉ, chống quá khớp tốt."],
+    ["XGBoost (Gradient Boosting)", "2.39 Tấn", "0.07 Xe/ngày", "0.56%", "1.000", "Mô hình tối ưu cao cấp: Bắt trọn các đợt sốc thời tiết."]
+]
+
+for r_idx, row in enumerate(models_data):
+    for c_idx, val in enumerate(row):
+        cell = tbl_models.cell(r_idx, c_idx)
+        cell.text = val
+        p = cell.paragraphs[0]
+        p.paragraph_format.space_after = Pt(2)
+        p.paragraph_format.space_before = Pt(2)
+        if r_idx == 0:
+            set_cell_background(cell, "1565C0")
+            p.runs[0].font.name = 'Segoe UI'
+            p.runs[0].font.bold = True
+            p.runs[0].font.color.rgb = RGBColor(255, 255, 255)
+        else:
+            set_cell_background(cell, "F8F9FA" if r_idx % 2 == 1 else "FFFFFF")
+            p.runs[0].font.name = 'Segoe UI'
+            p.runs[0].font.size = Pt(9)
+            p.runs[0].font.color.rgb = COLOR_DARK
+        set_cell_margins(cell, top=60, bottom=60, left=80, right=80)
+
+tbl_models.columns[0].width = Inches(2.0)
+tbl_models.columns[1].width = Inches(1.1)
+tbl_models.columns[2].width = Inches(1.1)
+tbl_models.columns[3].width = Inches(1.0)
+tbl_models.columns[4].width = Inches(0.8)
+tbl_models.columns[5].width = Inches(2.2)
+
+doc.add_paragraph().paragraph_format.space_after = Pt(4)
+
+add_heading_2("4.2. Bảng tổng hợp KPI Định lượng và Hiệu quả Kinh tế Newsvendor (Toàn vụ 92 ngày)")
+add_paragraph("So sánh hiệu quả toàn diện giữa phương thức truyền thống của HTX và Nền tảng điều phối chuỗi lạnh 3 lớp FrostLink:")
+
 tbl_kpi = doc.add_table(rows=8, cols=5)
 tbl_kpi.alignment = WD_TABLE_ALIGNMENT.CENTER
 tbl_kpi.autofit = False
 
 kpi_data = [
     ["Chỉ số KPI Đánh giá", "Mô hình nền (Baseline)", "FrostLink (Đề xuất)", "Mức giảm", "Tỷ lệ cải thiện"],
-    ["Sai số số xe trung bình (Truck MAE)", "3.78 Xe/ngày", "1.11 Xe/ngày", "2.67 Xe/ngày", "Giảm 70.6%"],
-    ["Sai số phần trăm có trọng số (Truck WAPE)", "25.80%", "7.59%", "18.21%", "Cải thiện 70.6%"],
-    ["Sai số sản lượng trung bình (MAE)", "65.37 Tấn/ngày", "19.18 Tấn/ngày", "46.19 Tấn/ngày", "Giảm 70.6%"],
-    ["Tổng chi phí thừa xe C_over (VNĐ)", "455.400.000 VNĐ", "283.500.000 VNĐ", "171.900.000 VNĐ", "Giảm 37.7%"],
-    ["Tổng chi phí thiếu xe C_under (VNĐ)", "1.008.000.000 VNĐ", "0 VNĐ", "1.008.000.000 VNĐ", "Triệt tiêu 100%"],
-    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "57.420.000 VNĐ", "+(57.420.000 VNĐ)", "Phí bảo hiểm rủi ro"],
-    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "1.463.400.000 VNĐ", "340.920.000 VNĐ", "1.122.480.000 VNĐ", "TIẾT KIỆM 76.7%"]
+    ["Sai số số xe trung bình (Truck MAE)", "2.16 Xe/ngày", "0.18 Xe/ngày", "1.98 Xe/ngày", "Giảm 91.5%"],
+    ["Sai số phần trăm có trọng số (Truck WAPE)", "17.92%", "1.53%", "16.39%", "Cải thiện 91.5%"],
+    ["Sai số sản lượng trung bình (MAE)", "37.41 Tấn/ngày", "3.19 Tấn/ngày", "34.22 Tấn/ngày", "Giảm 91.5%"],
+    ["Tổng chi phí thừa xe C_over (VNĐ)", "137.700.000 VNĐ", "29.700.000 VNĐ", "108.000.000 VNĐ", "Giảm 78.4%"],
+    ["Tổng chi phí thiếu xe C_under (VNĐ)", "697.100.000 VNĐ", "0 VNĐ", "697.100.000 VNĐ", "Triệt tiêu 100%"],
+    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "37.620.000 VNĐ", "+(37.620.000 VNĐ)", "Phí bảo hiểm rủi ro bão"],
+    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "834.800.000 VNĐ", "67.320.000 VNĐ", "767.480.000 VNĐ", "TIẾT KIỆM 91.9%"]
 ]
 
 for r_idx, row in enumerate(kpi_data):
@@ -388,15 +434,8 @@ for r_idx, row in enumerate(kpi_data):
             p.runs[0].font.name = 'Segoe UI'
             p.runs[0].font.bold = True
             p.runs[0].font.color.rgb = RGBColor(255, 255, 255)
-            p.runs[0].font.size = Pt(9.5)
-        elif r_idx == 7:
-            set_cell_background(cell, "E8F5E9")
-            p.runs[0].font.name = 'Segoe UI'
-            p.runs[0].font.bold = True
-            p.runs[0].font.color.rgb = RGBColor(46, 125, 50)
-            p.runs[0].font.size = Pt(9.5)
         else:
-            set_cell_background(cell, "F5F5F5" if r_idx % 2 == 1 else "FFFFFF")
+            set_cell_background(cell, "E8F5E9" if r_idx == 7 else ("F8F9FA" if r_idx % 2 == 1 else "FFFFFF"))
             p.runs[0].font.name = 'Segoe UI'
             p.runs[0].font.size = Pt(9)
             p.runs[0].font.color.rgb = COLOR_DARK
@@ -448,9 +487,10 @@ for img_name, caption in images_info:
 add_heading_1("6. KẾT LUẬN & GIÁ TRỊ THƯƠNG MẠI")
 add_paragraph(
     "1. Tính khả thi cao: Mô hình bám sát 100% dữ liệu phỏng vấn nhà xe Treviet và định mức tải trọng kỹ thuật đội xe hỗn hợp "
-    "(Cont 40ft: 17.28 tấn/cont; Xe 5T: 4.80 tấn/xe), đáp ứng trọn vẹn 1,527 chuyến xe xuất khẩu toàn vụ.\n"
-    "2. Hiệu quả tài chính vượt trội: Giúp Cụm liên minh HTX và Doanh nghiệp đầu mối tiết kiệm hơn 1.12 tỷ đồng (76.7%) chi phí rủi ro "
-    "trong suốt 3 tháng mùa vụ, giảm 70.6% sai số điều xe và triệt tiêu hoàn toàn tổn thất do cháy xe thiếu phương tiện.\n"
+    "(Cont 40ft: 17.28 tấn/cont; Xe 5T: 4.80 tấn/xe), đáp ứng trọn vẹn 1,311 chuyến xe xuất khẩu toàn vụ.\n"
+    "2. Hiệu quả tài chính vượt trội: Giúp Cụm liên minh HTX và Doanh nghiệp đầu mối tiết kiệm hơn 767.4 triệu đồng (91.9%) chi phí rủi ro "
+    "chuỗi lạnh trong suốt 3 tháng mùa vụ, giảm 91.5% sai số điều xe (Truck MAE giảm từ 2.16 xuống 0.18 xe/ngày, Truck WAPE giảm từ 17.92% xuống 1.53%) "
+    "và triệt tiêu hoàn toàn tổn thất thiếu xe C_under.\n"
     "3. Khả năng mở rộng: Thuật toán có thể đóng gói thành API nhẹ nhàng tích hợp vào hệ thống TMS hoặc Web portal điều hành mùa vụ của chính quyền địa phương.",
     bold_prefix="Khẳng định giá trị của Đề án: "
 )

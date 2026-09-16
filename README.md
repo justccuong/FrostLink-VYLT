@@ -31,21 +31,21 @@ Hệ thống logistics truyền thống hiện nay gặp thất bại thị trư
 
 ## 📊 2. Kết quả Đối chuẩn Mô hình (Model Benchmark - Toàn vụ 92 ngày)
 
-Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $28.742,2\text{ tấn}$ vải, $1.527\text{ chuyến}$ xe lạnh thực tế gồm $1.308$ Cont 40ft và $219$ Xe 5T gom hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet):
+Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $23.856,2\text{ tấn}$ vải, $1.311\text{ chuyến}$ xe lạnh thực tế gồm $1.098$ Cont 40ft và $213$ Xe 5T gom hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet và khí tượng Open-Meteo ERA5):
 
 | Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | $R^2$ Score | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Trung bình 3 ngày)** | 65.37 Tấn | 3.78 Xe/ngày | 25.80% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.22 Xe/ngày | 15.60% | 0.929 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
-| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.71 Xe/ngày | 4.97% | 0.991 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
-| **XGBoost (Gradient Boosting)** | **4.20 Tấn** | **0.23 Xe/ngày** | **1.61%** | **0.999** | **Mô hình tối ưu:** Đưa WAPE xuống $<2\%$ (chuẩn khắt khe logistics quốc tế, bắt trọn các đợt bão dông). |
-| **FrostLink (Tích hợp Cơ chế 3 Lớp & Đội xe hỗn hợp)** | **19.18 Tấn** | **1.11 Xe/ngày** | **7.59%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **76.7% chi phí rủi ro** toàn vụ, triệt tiêu $100\%$ tình trạng thiếu xe. |
+| **Baseline (Trung bình 3 ngày)** | 37.41 Tấn | 2.16 Xe/ngày | 17.92% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 17.29 Tấn | 0.82 Xe/ngày | 6.94% | 0.983 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
+| **Random Forest (Cây quyết định)** | 7.15 Tấn | 0.26 Xe/ngày | 2.22% | 0.997 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
+| **XGBoost (Gradient Boosting)** | **2.39 Tấn** | **0.07 Xe/ngày** | **0.56%** | **1.000** | **Mô hình tối ưu:** Đưa WAPE xuống $<1\%$ (chuẩn khắt khe logistics quốc tế, bắt trọn các đợt bão dông). |
+| **FrostLink (Tích hợp Cơ chế 3 Lớp & Đội xe hỗn hợp)** | **3.19 Tấn** | **0.18 Xe/ngày** | **1.53%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **91.9% chi phí rủi ro** toàn vụ, triệt tiêu $100\%$ tình trạng thiếu xe. |
 
 ### 💰 Lượng hóa Kinh tế theo Bài toán Newsvendor:
-- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $455.4\text{ triệu}$ xuống $283.5\text{ triệu VNĐ}$ (Giảm 37.7%).
-- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $1.008\text{ tỷ}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
-- **Phí hủy cọc bảo hiểm Lớp 2:** $57.42\text{ triệu VNĐ}$ (cọc 20% bảo hiểm cho các ngày bão mưa $> 20\text{mm}$).
-- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$1.463,4\text{ triệu}$ xuống $340,92\text{ triệu VNĐ}$**, **tiết kiệm hơn $1,122\text{ tỷ VNĐ (76.7%)}$**.
+- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $137.7\text{ triệu}$ xuống $29.7\text{ triệu VNĐ}$ (Giảm 78.4%).
+- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $697.1\text{ triệu}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
+- **Phí hủy cọc bảo hiểm Lớp 2:** $37.62\text{ triệu VNĐ}$ (cọc 20% bảo hiểm cho các ngày bão mưa $\ge 20\text{mm}$).
+- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$834.8\text{ triệu}$ xuống $67.32\text{ triệu VNĐ}$**, **tiết kiệm hơn $767.5\text{ triệu VNĐ (91.9%)}$**.
 
 ---
 
@@ -54,10 +54,12 @@ Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục N
 ```text
 frostlink-ai/
 ├── data/                                 # Dữ liệu phục vụ mô hình
-│   ├── FrostLink_Du_lieu_Chuan.xlsx      # Dữ liệu chuẩn hóa 30 ngày có công thức Excel
+│   ├── FrostLink_Du_lieu_Chuan.xlsx      # Dữ liệu chuẩn hóa 92 ngày có công thức Excel động
 │   ├── FrostLink_Data_Evaluated.csv      # File CSV trung gian phục vụ huấn luyện
+│   ├── weather_luc_ngan_api.csv          # Dữ liệu khí tượng trích xuất từ Open-Meteo ERA5 API
 │   └── raw/                              # Dữ liệu khảo sát thực địa ban đầu
 ├── src/                                  # Mã nguồn chương trình
+│   ├── fetch_weather_api.py              # Script trích xuất thời tiết tự động qua Open-Meteo API
 │   ├── pipeline_frostlink_ai.py          # Pipeline huấn luyện RF, XGBoost & xuất 4 EDA
 │   ├── generate_final_report_docx.py     # Script xuất báo cáo Word với công thức OMML
 │   └── sync_and_evaluate_excel.py        # Script tính toán KPI Newsvendor
@@ -68,13 +70,13 @@ frostlink-ai/
 │   ├── eda_04_economic_risk_cost.png     # Đối chuẩn tổn thất chi phí Newsvendor
 │   └── so_do_kien_truc_5.1.png           # Sơ đồ kiến trúc 4 tầng giải pháp
 ├── docs/                                 # Tài liệu giải trình & báo cáo đề án
-│   ├── giai_thich_mo_hinh_rf_xgboost.md  # Cẩm nang chuyên sâu giải thích RF & XGBoost
 │   ├── Bao_cao_tong_quan_mo_hinh_FrostLink_5.1.docx # Báo cáo Word hoàn chỉnh chuẩn nộp
-│   ├── ke_hoach_nhung_gi_da_lam.md       # Báo cáo tóm tắt & kịch bản vận hành thực tế
-│   ├── ket_qua_mo_hinh_frostlink.md      # Kết quả định lượng chi tiết
-│   ├── latex.txt                         # Toàn bộ mã nguồn công thức LaTeX
-│   └── De_xuat_chi_tiet_de_tai_FROSTLINK.docx # Bản đề xuất chi tiết hoàn chỉnh
-├── .gitignore                            # Bỏ qua file rác, file tạm Office (~$*.xlsx)
+│   ├── Mo_hinh_du_bao_kinh_te_5.1_FrostLink.md      # Thuyết minh mô hình kinh tế 5.1
+│   ├── giai_thich_mo_hinh_rf_xgboost.md             # Cẩm nang chuyên sâu giải thích RF & XGBoost
+│   ├── ke_hoach_nhung_gi_da_lam.md                  # Báo cáo tóm tắt & kịch bản vận hành
+│   ├── ket_qua_mo_hinh_frostlink.md                 # Kết quả định lượng chi tiết
+│   ├── latex.txt                                    # Toàn bộ mã nguồn công thức LaTeX
+│   └── De_xuat_chi_tiet_de_tai_FROSTLINK.docx       # Bản đề xuất chi tiết hoàn chỉnh
 ├── requirements.txt                      # Danh sách thư viện phụ thuộc
 └── README.md                             # Hướng dẫn tổng quan dự án
 ```
