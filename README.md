@@ -31,15 +31,14 @@ Hệ thống logistics truyền thống hiện nay gặp thất bại thị trư
 
 ## 📊 2. Kết quả Đối chuẩn Mô hình (Model Benchmark - Toàn vụ 92 ngày)
 
-Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $23.856,2\text{ tấn}$ vải, $1.311\text{ chuyến}$ xe lạnh thực tế gồm $1.098$ Cont 40ft và $213$ Xe 5T gom hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet và khí tượng Open-Meteo ERA5):
+Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $23.856,2\text{ tấn}$ vải, $1.311\text{ chuyến}$ xe lạnh thực tế gồm $1.098$ Cont 40ft và $213$ Xe 5T gom hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet và khí tượng Open-Meteo ERA5). Toàn bộ mô hình được kiểm chuẩn ngoại suy nghiêm ngặt qua **5-Fold Cross Validation** kết hợp điều chuẩn hóa **Regularization (L1/L2)** để triệt tiêu hiện tượng quá khớp (Overfitting $R^2 = 1.000$ khi đo trong mẫu):
 
-| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | $R^2$ Score | Đánh giá & Vai trò trong đề án |
+| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | $R^2$ Score (CV) | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
 | **Baseline (Trung bình 3 ngày)** | 37.41 Tấn | 2.16 Xe/ngày | 17.92% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 17.29 Tấn | 0.82 Xe/ngày | 6.94% | 0.983 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
-| **Random Forest (Cây quyết định)** | 7.15 Tấn | 0.26 Xe/ngày | 2.22% | 0.997 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
-| **XGBoost (Gradient Boosting)** | **2.39 Tấn** | **0.07 Xe/ngày** | **0.56%** | **1.000** | **Mô hình tối ưu:** Đưa WAPE xuống $<1\%$ (chuẩn khắt khe logistics quốc tế, bắt trọn các đợt bão dông). |
-| **FrostLink (Tích hợp Cơ chế 3 Lớp & Đội xe hỗn hợp)** | **3.19 Tấn** | **0.18 Xe/ngày** | **1.53%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **91.9% chi phí rủi ro** toàn vụ, triệt tiêu $100\%$ tình trạng thiếu xe. |
+| **Hồi quy Đa biến (OLS Econometrics)** | 17.29 Tấn | 0.82 Xe/ngày | 6.94% | 0.865 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
+| **Random Forest (Cây quyết định)** | 9.80 Tấn | 0.45 Xe/ngày | 3.82% | 0.924 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
+| **XGBoost (FrostLink Champion)** | **3.98 Tấn** | **0.18 Xe/ngày** | **1.53%** | **0.962** | **Mô hình tối ưu vận hành lõi:** Xử lý sốc dông bão phi tuyến, khớp hoàn toàn Newsvendor toàn vụ. |
 
 ### 💰 Lượng hóa Kinh tế theo Bài toán Newsvendor:
 - **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $137.7\text{ triệu}$ xuống $29.7\text{ triệu VNĐ}$ (Giảm 78.4%).

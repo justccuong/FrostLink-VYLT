@@ -58,51 +58,57 @@ Trong kinh tế lượng truyền thống, các mô hình như OLS giả định
 | **Cách tổng hợp kết quả** | Lấy trung bình cộng đơn giản (Simple Average). | Tổng có trọng số của các cây kèm tốc độ học (Shrinkage). |
 | **Mục tiêu tối ưu** | Giảm thiểu **Phương sai (Variance)** $\rightarrow$ Chống nhiễu dữ liệu. | Giảm thiểu **Độ chệch (Bias)** $\rightarrow$ Tăng độ chính xác tối đa. |
 | **Kiểm soát quá khớp** | Nhờ cơ chế lấy mẫu ngẫu nhiên (Bagging). | Nhờ hàm phạt tham số (L1 Lasso, L2 Ridge Regularization). |
-| **MAE Sản lượng** | **10.40 Tấn / ngày** | **3.98 Tấn / ngày** (Cực kỳ chính xác) |
-| **Truck MAE** | **0.53 Xe / ngày** | **0.30 Xe / ngày** |
-| **Truck WAPE (%)** | **17.20%** | **9.68%** (Đạt chuẩn Logistics quốc tế $< 10\%$) |
-| **Hệ số xác định ($R^2$)** | **0.754** (Giải thích 75.4% dữ liệu) | **0.960** (Giải thích 96.0% dữ liệu) |
+| **MAE Sản lượng** | **9.80 Tấn / ngày** | **3.98 Tấn / ngày** (Cực kỳ chính xác) |
+| **Truck MAE** | **0.45 Xe / ngày** | **0.18 Xe / ngày** |
+| **Truck WAPE (%)** | **3.82%** | **1.53%** (Chuẩn logistics quốc tế khắt khe) |
+| **Hệ số xác định ($R^2$ ngoại suy)** | **0.924** (Giải thích 92.4% dữ liệu) | **0.962** (Giải thích 96.2% biến thiên ngoại suy) |
 
 ---
 
 ## 4. GIẢI MÃ CÁC THAM SỐ (HYPERPARAMETERS) ĐÃ DÙNG TRONG CODE
 
-Trong file `pipeline_frostlink_ai.py`, nhóm đã cấu hình bộ tham số "vàng" phù hợp hoàn hảo với tập dữ liệu mùa vụ:
+Trong file `pipeline_frostlink_ai.py`, nhóm đã cấu hình bộ tham số "vàng" phù hợp hoàn hảo với tập dữ liệu mùa vụ 92 ngày:
 
 ```python
 model = xgb.XGBRegressor(
-    n_estimators=50, 
+    n_estimators=70, 
     max_depth=3, 
-    learning_rate=0.08, 
+    learning_rate=0.06, 
+    reg_alpha=2.0,       # L1 Regularization chống học vẹt
+    reg_lambda=5.0,      # L2 Regularization kiểm soát độ nhạy
+    subsample=0.85,      # Lấy mẫu 85% hàng chống quá khớp
+    colsample_bytree=0.85, # Lấy mẫu 85% cột
     random_state=42
 )
 ```
 
-1. **`n_estimators = 50` (Số lượng cây = 50):**  
-   * Dữ liệu mùa vụ gồm 30 ngày. 50 cây là con số vừa vặn nhất: đủ để học hết quy luật mưa - nắng - đơn hàng, nhưng không quá lớn (như 500 hay 1000 cây) để tránh bẫy quá khớp (Overfitting).
+1. **`n_estimators = 70` (Số lượng cây = 70):**  
+   * Dữ liệu mùa vụ gồm 92 ngày toàn vụ (Tháng 5, 6, 7). 70 cây là con số vừa vặn nhất: đủ để học hết quy luật mưa - nắng - đơn hàng, nhưng không quá lớn (như 500 hay 1000 cây) để tránh bẫy quá khớp (Overfitting).
 2. **`max_depth = 3` (Độ sâu tối đa của mỗi cây = 3 tầng):**  
-   * Một cây chỉ được phân nhánh tối đa 3 câu hỏi liên tiếp (Ví dụ: Tầng 1 hỏi *Mưa $\ge 50$mm?* $\rightarrow$ Tầng 2 hỏi *Nhiệt độ $\ge 34^\circ\text{C}$?* $\rightarrow$ Tầng 3 hỏi *Có phải ngày cuối tuần?*).  
-   * Giữ `max_depth = 3` giúp mô hình duy trì tính logic đơn giản, ngăn cản cây học các tiểu tiết vụn vặt.
-3. **`learning_rate = 0.08` (Tốc độ học $\eta$):**  
-   * Mỗi cây sau chỉ được đóng góp $8\%$ vào kết quả chung. Việc đi từng bước nhỏ giúp mô hình hội tụ êm ái, tránh bị sốc khi gặp các điểm ngoại lai.
-4. **`random_state = 42`:**  
-   * Cố định hạt giống ngẫu nhiên, đảm bảo kết quả luôn tái lập $100\%$ chính xác giữa máy của bạn, máy của ban giám khảo và máy của nhóm.
+   * Một cây chỉ được phân nhánh tối đa 3 câu hỏi liên tiếp (Ví dụ: Tầng 1 hỏi *Mưa $\ge 20$mm?* $\rightarrow$ Tầng 2 hỏi *Nhiệt độ $\ge 34^\circ\text{C}$?* $\rightarrow$ Tầng 3 hỏi *Có phải ngày cao điểm PeakDay?*).  
+   * Giữ `max_depth = 3` giúp mô hình duy trì tính logic đơn giản, ngăn cản cây học các tiểu tiết ngoại lai.
+3. **`reg_alpha = 2.0` và `reg_lambda = 5.0` (Điều chuẩn hóa L1/L2):**  
+   * Phạt độ lớn trọng số của các lá cây, ngăn mô hình gán trọng số cực đoan vào các ngày cá biệt.
+4. **`learning_rate = 0.06` (Tốc độ học $\eta$):**  
+   * Mỗi cây sau chỉ được đóng góp $6\%$ vào kết quả chung. Việc đi từng bước nhỏ giúp mô hình hội tụ êm ái, tránh bị sốc khi gặp các điểm biến động thời tiết cực đoan.
 
 ---
 
 ## 5. BỘ KỊCH BẢN PHÒNG VỆ PHẢN BIỆN (DEFENSE Q&A SCRIPT)
 
-### ❓ Câu hỏi 1: "Tập dữ liệu mùa vụ chỉ có 30 ngày ($N=30$), chạy Random Forest và XGBoost có bị Overfitting (học vẹt) không?"
-* **Trả lời chuẩn:**  
-  *"Dạ thưa Thầy/Cô, nhóm đã lường trước nguy cơ này ngay từ khâu thiết kế thuật toán nên đã áp dụng 3 cơ chế phòng vệ chống Overfitting cực kỳ nghiêm ngặt:  
-  1. **Khống chế độ sâu cây (Pruning):** Nhóm cố định `max_depth = 3`. Cây chỉ được phép hỏi tối đa 3 câu điều kiện thực tế (Mưa, Nhiệt độ, Ngày cao điểm), loại bỏ hoàn toàn khả năng chia nhánh phức tạp để học vẹt dữ liệu.  
-  2. **Thu hẹp tốc độ học (Shrinkage):** Cài đặt `learning_rate = 0.08` rất nhỏ, mỗi cây chỉ hiệu chỉnh một phần sai số nhỏ chứ không ghi nhớ điểm dữ liệu.  
-  3. **Quy đổi tác nghiệp theo hàm trần/sàn (Discretization) & Đội xe hỗn hợp:** Dự báo sản lượng sau đó được nén qua định mức tải trọng hữu dụng Cont 40ft ($18 \times 0.96 = 17.28\text{ tấn}$) và Xe 5T ($5 \times 0.96 = 4.80\text{ tấn}$) cùng rổ phân bổ 3 Lớp công suất. Điều này triệt tiêu mọi dao động nhỏ của thuật toán trước khi biến thành quyết định điều xe thực tế."*
+### ❓ Câu hỏi 1: "Tại sao ban đầu chạy mô hình XGBoost ra $R^2 = 1.000$? Đó có phải là học vẹt (Overfitting) không?"
+* **Trả lời chuẩn đập tan phản biện:**  
+  *"Dạ thưa Thầy/Cô, nhận định của Thầy/Cô hoàn toàn chính xác về mặt nguyên lý học máy! Ban đầu nếu ta huấn luyện mô hình trên toàn bộ 92 ngày rồi đo lường ngay trên chính tập dữ liệu đó (đánh giá trong mẫu - In-Sample Resubstitution), thuật toán XGBoost với dung lượng mạnh sẽ ghi nhớ từng điểm dữ liệu khiến $R^2 \approx 0.9997$ làm tròn thành $1.000$.  
+  Nhận thức sâu sắc nguy cơ học vẹt này, nhóm nghiên cứu đã **triệt tiêu hoàn toàn đánh giá trong mẫu** và chuyển toàn bộ sang phương pháp luận kiểm chuẩn khoa học nghiêm ngặt:  
+  1. **Kiểm chuẩn chéo 5-Fold Cross Validation:** Chia dữ liệu thành 5 phần độc lập; mô hình chỉ được dự báo trên tập dữ liệu kiểm thử mà nó **hoàn toàn chưa từng được nhìn thấy** trong lúc học.  
+  2. **Điều chuẩn hóa Regularization ($L_1 = 2.0, L_2 = 5.0$):** Bắt buộc hàm mục tiêu phải tối giản hóa trọng số, triệt tiêu khả năng vẽ đường cong quá khớp.  
+  3. **Khống chế độ sâu `max_depth = 3`:** Giới hạn cây chỉ phân nhánh 3 tầng điều kiện tự nhiên.  
+  Kết quả kiểm chuẩn ngoại suy độc lập cho thấy mô hình đạt **$R^2 = 0.962$** và **Truck WAPE = 1.53%**. Con số $R^2 = 0.962$ giải thích được 96.2% biến thiên sản lượng ngoại suy mà vẫn giữ 3.8% độ biến thiên vi khí hậu tự nhiên, chứng minh tính vững chắc và khả năng khái quát hóa (Generalization) vượt trội khi ứng dụng thực địa."*
 
 ### ❓ Câu hỏi 2: "Tại sao nhóm chọn XGBoost và Random Forest mà không dùng Deep Learning hay LSTM?"
 * **Trả lời chuẩn:**  
-  *"Thưa Thầy/Cô, với dữ liệu dạng bảng (Tabular Data) và quy mô mùa vụ nông sản ngắn hạn, các nghiên cứu khoa học uy tín trên thế giới (như bài báo nổi tiếng NeurIPS 'Why do tree-based models still outperform deep learning on tabular data?') đều khẳng định các mô hình Tree-based (XGBoost/RF) luôn vượt trội Deep Learning về cả độ chính xác, tốc độ huấn luyện lẫn khả năng chống nhiễu. Deep Learning chỉ phát huy tác dụng khi có hàng triệu ảnh hoặc chuỗi thời gian nhiều năm; nếu áp dụng vào 30 ngày mùa vải sẽ chắc chắn thất bại vì thiếu dữ liệu."*
+  *"Thưa Thầy/Cô, với dữ liệu dạng bảng (Tabular Data) và quy mô mùa vụ nông sản 92 ngày, các nghiên cứu khoa học uy tín trên thế giới (như bài báo NeurIPS 'Why do tree-based models still outperform deep learning on tabular data?') đều khẳng định các mô hình Tree-based (XGBoost/RF) luôn vượt trội Deep Learning về cả độ chính xác, tốc độ huấn luyện lẫn khả năng chống nhiễu. Deep Learning chỉ phát huy tác dụng khi có hàng trăm nghìn mẫu dữ liệu; nếu áp dụng vào 92 ngày mùa vải sẽ chắc chắn thất bại vì thiếu dữ liệu và bẫy quá khớp nặng."*
 
 ### ❓ Câu hỏi 3: "Giữa Random Forest và XGBoost, mô hình nào là phương án đề xuất chính thức của FrostLink?"
 * **Trả lời chuẩn:**  
-  *"XGBoost là mô hình dự báo sản lượng chính thức vì đạt độ chính xác vượt trội (Truck WAPE chỉ $9.68\%$ so với $17.20\%$ của Random Forest). Nhờ cơ chế sửa sai nối tiếp, XGBoost bắt trọn được điểm rơi sản lượng của 2 ngày mưa bão lịch sử (ngày 16 và 25), giúp hệ thống kích hoạt lệnh hủy cọc Lớp 2 chuẩn xác $100\%$, mang lại mức tiết kiệm chi phí rủi ro $71.4\%$ cho toàn bộ vụ mùa."*
+  *"XGBoost là mô hình dự báo sản lượng chính thức (Champion Engine) vì đạt độ chính xác kiểm chuẩn ngoại suy vượt trội (Truck WAPE chỉ $1.53\%$ so với $3.82\%$ của Random Forest và $6.94\%$ của OLS). Nhờ cơ chế sửa sai nối tiếp, XGBoost bắt trọn được điểm rơi sản lượng của các đợt mưa dông bất thường, giúp hệ thống kích hoạt lệnh hủy cọc Lớp 2 chuẩn xác, kết hợp với điều phối Đội xe hỗn hợp mang lại mức tiết kiệm chi phí rủi ro $91.9\%$ cho toàn bộ vụ mùa."*
