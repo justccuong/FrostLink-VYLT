@@ -147,3 +147,28 @@ Trong đó:
 Ý nghĩa kinh tế:
 Mô hình chứng minh việc chủ động mất cọc Lớp 2 (20%) để hủy xe trước ngày bão luôn tiết kiệm hơn việc để xe chạy rỗng đến bãi bị phạt 2.7 triệu kèm nguy cơ nông sản bị thâm hỏng mất giá trị.
 ================================================================================
+
+
+--------------------------------------------------------------------------------
+5. MÔ HÌNH QUY HOẠCH TUYẾN TÍNH NGUYÊN HỖN HỢP ĐIỀU PHỐI ĐỘI XE (MILP)
+--------------------------------------------------------------------------------
+
+[5.1] Hàm mục tiêu tối thiểu hóa tổng chi phí toàn mạng:
+\[
+\min_{\mathbf{x}, \mathbf{y}} Z = \sum_{j \in J} \text{FixedCost}_j \cdot y_j + \sum_{i \in I} \sum_{j \in J} x_{ij} \cdot \left( \text{DeadheadCost}_{ji} + \text{TransitCost}_{ij} \right)
+\]
+
+[5.2] Ràng buộc 100% đơn hàng được tiếp nhận đơn nhất:
+\[
+\sum_{j \in J} x_{ij} = 1, \quad \forall i \in I
+\]
+
+[5.3] Ràng buộc tải trọng hữu dụng và liên kết kích hoạt xe:
+\[
+\sum_{i \in I} w_i \cdot x_{ij} \le C_j \cdot y_j, \quad \forall j \in J
+\]
+
+[5.4] Ràng buộc miền giá trị nhị phân:
+\[
+x_{ij} \in \{0, 1\}, \quad \forall i \in I, j \in J; \qquad y_j \in \{0, 1\}, \quad \forall j \in J
+\]
