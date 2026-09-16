@@ -49,11 +49,11 @@ CONFIG = {
     "excel_path": os.path.join(DATA_DIR, "FrostLink_Du_lieu_Chuan.xlsx"),
     "sheet_name": "Final",
     
-    # Định mức tải trọng hữu dụng: Tải trọng danh định * 0.95 (5% dung tích tuần hoàn khí lạnh)
+    # Định mức tải trọng hữu dụng: Tải trọng danh định * 0.96 (4% dung tích tuần hoàn khí lạnh)
     "nominal_capacity_40ft": 18.0,
-    "eff_capacity_40ft": 18.0 * 0.95,  # 17.1 Tấn/cont
+    "eff_capacity_40ft": 18.0 * 0.96,  # 17.28 Tấn/cont
     "nominal_capacity_5t": 5.0,
-    "eff_capacity_5t": 5.0 * 0.95,     # 4.75 Tấn/xe
+    "eff_capacity_5t": 5.0 * 0.96,     # 4.80 Tấn/xe
     
     # Tỷ lệ sản lượng xuất khẩu đi xe lạnh
     "cold_chain_ratio_normal": 0.80,   # 80% ngày thường

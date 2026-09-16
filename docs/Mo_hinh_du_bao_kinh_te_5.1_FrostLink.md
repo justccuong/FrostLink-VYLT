@@ -89,17 +89,17 @@ $$\hat{Y}_t = 258.76 - 6.64 \cdot \text{Temp}_t + 0.08 \cdot \text{Rain}_t - 45.
   * $\beta_4 = 1.00$: Cứ thêm 1 tấn đơn hàng xuất khẩu được chốt trước, HTX kích hoạt thu hoạch thêm đúng 1 tấn vải phục vụ đơn.
   * $\beta_5 = 8.72$: Ngày cao điểm dồn hàng cuối tuần (Thứ Năm, Thứ Sáu) thúc đẩy sản lượng gom tăng 8.72 tấn để kịp thông quan cửa khẩu.
 
-### 4.2. Bước 2: Quy đổi tác nghiệp Đội xe hỗn hợp: Cont 40ft & Xe 5T ($C_{\text{eff}} = C_{\text{nom}} \times 0.95$)
+### 4.2. Bước 2: Quy đổi tác nghiệp Đội xe hỗn hợp: Cont 40ft & Xe 5T ($C_{\text{eff}} = C_{\text{nom}} \times 0.96$)
 Dân kinh tế và logistics cần một công thức chuyển giao tác nghiệp rõ ràng, tối ưu chi phí bằng đội xe hỗn hợp (Mixed Fleet) thay vì chỉ dùng duy nhất xe công 40:
 
 1. **Số lượng Container 40 feet (Cont 40ft - Lô hàng lớn chính ngạch):**
-   $$N_{\text{cont40}, t} = \left\lfloor \frac{Y_t \times \alpha_t}{18 \times 0.95} \right\rfloor$$
+   $$N_{\text{cont40}, t} = \left\lfloor \frac{Y_t \times \alpha_t}{18 \times 0.96} \right\rfloor$$
 
 2. **Lượng vải dư lẻ sau khi đóng cont (Hàng lẻ LTL):**
-   $$Y_{\text{rem}, t} = (Y_t \times \alpha_t) \bmod (18 \times 0.95) \quad (\text{Tấn})$$
+   $$Y_{\text{rem}, t} = (Y_t \times \alpha_t) \bmod (18 \times 0.96) \quad (\text{Tấn})$$
 
 3. **Số lượng Xe tải lạnh 5T (Xe 5T gom vét hàng lẻ):**
-   $$N_{\text{truck5}, t} = \begin{cases} \left\lceil \frac{Y_{\text{rem}, t}}{5 \times 0.95} \right\rceil, & \text{khi } Y_{\text{rem}, t} > 0 \\ 0, & \text{khi } Y_{\text{rem}, t} = 0 \end{cases}$$
+   $$N_{\text{truck5}, t} = \begin{cases} \left\lceil \frac{Y_{\text{rem}, t}}{5 \times 0.96} \right\rceil, & \text{khi } Y_{\text{rem}, t} > 0 \\ 0, & \text{khi } Y_{\text{rem}, t} = 0 \end{cases}$$
 
 4. **Tổng số phương tiện lạnh điều phối:**
    $$N_{\text{total}, t} = N_{\text{cont40}, t} + N_{\text{truck5}, t}$$
@@ -107,8 +107,8 @@ Dân kinh tế và logistics cần một công thức chuyển giao tác nghiệ
 * Trong đó:
   * $Y_t$: Sản lượng thu hoạch dự báo ngày $t$ (Tấn).
   * $\alpha_t$: Tỷ lệ hàng đạt tiêu chuẩn đi đường dài/xuất khẩu bắt buộc dùng chuỗi lạnh ($\alpha_t \approx 0.80 - 0.85$). Khoảng 15–20% còn lại là vải tiêu thụ chợ truyền thống lân cận đi xe tải thường có phủ bạt đá cây.
-  * $C_{\text{eff, 40}} = 18 \times 0.95 = 17.1$ tấn/cont: Tải trọng hữu dụng thực tế của Container 40 feet lạnh (chừa 5% dung tích tuần hoàn khí lạnh theo khảo sát Treviet).
-  * $C_{\text{eff, 5}} = 5 \times 0.95 = 4.75$ tấn/xe: Tải trọng hữu dụng xe tải lạnh 5T gom vét hàng lẻ (cước 3.5 triệu/chuyến, tránh lãng phí 9.0 triệu/chuyến khi dùng Cont 40ft).
+  * $C_{\text{eff, 40}} = 18 \times 0.96 = 17.28$ tấn/cont: Tải trọng hữu dụng thực tế của Container 40 feet lạnh (chừa 4% dung tích tuần hoàn khí lạnh theo khảo sát Treviet).
+  * $C_{\text{eff, 5}} = 5 \times 0.96 = 4.80$ tấn/xe: Tải trọng hữu dụng xe tải lạnh 5T gom vét hàng lẻ (cước 3.5 triệu/chuyến, tránh lãng phí 9.0 triệu/chuyến khi dùng Cont 40ft).
   * $\lfloor \dots \rfloor$: Hàm sàn (Floor function - đóng kín cont).
   * $\lceil \dots \rceil$: Hàm trần (Ceiling function - chở sạch hàng lẻ).
 
@@ -165,7 +165,7 @@ $$\text{Total\_Cost} = \sum_{t=1}^n \left[ C_{\text{over}} \cdot \max(0, \, U_t 
 > **Bất đẳng thức kinh tế cốt lõi:**  
 > $$\text{Deposit}_{L2} \; (1.8\,\text{tr} - 2.34\,\text{tr}) \; < \; C_{\text{over}} \; (2.7\,\text{tr}) \; < \; C_{\text{under}} \; (6.0\,\text{tr})$$
 > * Việc mất 1.8 - 2.34 triệu tiền cọc Lớp 2 để hủy xe trước 24h khi có bão luôn tiết kiệm hơn việc để xe đến bãi bị phạt 2.7 triệu xe chạy rỗng, và ngăn ngừa triệt để tổn thất 6.0 triệu do thiếu xe.
-> * **Kết quả định lượng toàn vụ 92 ngày:** Giảm tổng chi phí rủi ro từ **1.351 tỷ đồng** (Baseline) xuống còn **208.8 triệu đồng** (FrostLink), tiết kiệm **1.142 tỷ đồng (84.5%)**.
+> * **Kết quả định lượng toàn vụ 92 ngày:** Giảm tổng chi phí rủi ro từ **1.463 tỷ đồng** (Baseline) xuống còn **340.9 triệu đồng** (FrostLink), tiết kiệm **1.122 tỷ đồng (76.7%)**.
 
 ### Cơ chế đặt xe 3 lớp công suất (3-Tier Capacity Booking)
 1. **Lớp 1 - Slot cam kết cứng (Firm Commitment - 70% Cont 40ft):** Giữ trước 3–7 ngày với nhà xe Treviet để hưởng giá cước cố định (9 triệu/chuyến).

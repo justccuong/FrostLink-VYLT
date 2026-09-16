@@ -5,10 +5,10 @@
 
 | Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | R² Score | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Moving Avg 3d)** | 65.07 Tấn | 3.81 Xe/ngày | 25.66% | — | Phương thức thủ công HTX (bị trễ pha khi có bão, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.24 Xe/ngày | 15.57% | 0.929 | Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng. |
-| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.74 Xe/ngày | 5.14% | 0.991 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
-| **XGBoost (Gradient Boosting)** | 4.20 Tấn | 0.18 Xe/ngày | 1.28% | 0.999 | Mô hình tối ưu chính thức: Bắt trọn 2 đợt bão dông, WAPE tối thiểu. |
+| **Baseline (Moving Avg 3d)** | 65.37 Tấn | 3.78 Xe/ngày | 25.80% | — | Phương thức thủ công HTX (bị trễ pha khi có bão, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.22 Xe/ngày | 15.60% | 0.929 | Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng. |
+| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.71 Xe/ngày | 4.97% | 0.991 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
+| **XGBoost (Gradient Boosting)** | 4.20 Tấn | 0.23 Xe/ngày | 1.61% | 0.999 | Mô hình tối ưu chính thức: Bắt trọn 2 đợt bão dông, WAPE tối thiểu. |
 
 ### 2. Phương trình Hồi quy Tuyến tính Đa biến (OLS)
 

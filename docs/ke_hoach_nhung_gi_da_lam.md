@@ -20,9 +20,9 @@ Toàn bộ số liệu trong mô hình được "neo" 100% vào **Biên bản ph
 
 1. **Đơn vị vận tải đối tác nòng cốt:** Công ty Vận tải và Du lịch Treviet.
 2. **Nguồn gốc dữ liệu & Đội xe hỗn hợp (Mixed Fleet):**
-   - **Container lạnh 40 feet (Cont 40ft - 40RF):** Tải trọng danh định 18T, tải trọng hữu dụng thực tế $C_{\text{eff, 40}} = 18 \times 0.95 = 17.1\text{ tấn/cont}$ (chừa 5% dung tích khí lạnh tuần hoàn). Toàn vụ phát sinh 1.323 chuyến cont 40ft chở các lô xuất khẩu chính ngạch lớn.
-   - **Xe tải lạnh 5 tấn (Xe 5T):** Tải trọng danh định 5T, tải trọng hữu dụng thực tế $C_{\text{eff, 5}} = 5 \times 0.95 = 4.75\text{ tấn/xe}$ (cước 3.5 triệu/chuyến thay vì 9.0 triệu/chuyến của Cont 40ft). Toàn vụ điều động 214 chuyến xe 5T gom sạch 792.46 tấn vải dư lẻ (LTL).
-   - Tổng cộng: **1.537 chuyến xe lạnh** thực tế toàn vụ ($28.742,2\text{ tấn}$ thu hoạch, $23.415,8\text{ tấn}$ đi chuỗi lạnh).
+   - **Container lạnh 40 feet (Cont 40ft - 40RF):** Tải trọng danh định 18T, tải trọng hữu dụng thực tế $C_{\text{eff, 40}} = 18 \times 0.96 = 17.28\text{ tấn/cont}$ (chừa 4% dung tích khí lạnh tuần hoàn). Toàn vụ phát sinh 1.308 chuyến cont 40ft chở các lô xuất khẩu chính ngạch lớn.
+   - **Xe tải lạnh 5 tấn (Xe 5T):** Tải trọng danh định 5T, tải trọng hữu dụng thực tế $C_{\text{eff, 5}} = 5 \times 0.96 = 4.80\text{ tấn/xe}$ (cước 3.5 triệu/chuyến thay vì 9.0 triệu/chuyến của Cont 40ft). Toàn vụ điều động 219 chuyến xe 5T gom sạch vải dư lẻ (LTL).
+   - Tổng cộng: **1.527 chuyến xe lạnh** thực tế toàn vụ ($28.742,2\text{ tấn}$ thu hoạch, $23.415,8\text{ tấn}$ đi chuỗi lạnh).
    - Giá cước: Cont 40ft (9M thường / 11.7M cao điểm), Xe 5T (3.5M thường / 4.55M cao điểm).
 
 ---
@@ -76,13 +76,13 @@ $\Rightarrow$ *Đây là minh chứng rõ nhất vì sao phải có FrostLink đ
 
 | Chỉ số KPI | Mô hình nền (Baseline HTX) | Mô hình FrostLink (Đề xuất) | Mức cải thiện | Ý nghĩa kinh tế |
 | :--- | :---: | :---: | :---: | :--- |
-| **Truck MAE (Sai số số xe)** | **3.87 xe/ngày** | **0.61 xe/ngày** | **Giảm 84.3%** | Sai số chỉ còn lệch 0.6 cont mỗi ngày. |
-| **Truck WAPE (Sai số % có trọng số)** | **26.06%** | **4.09%** | **Giảm 84.3%** | Chuẩn sai số logistics đẳng cấp quốc tế (<5%). |
-| **Sản lượng MAE** | 66.09 Tấn/ngày | 10.38 Tấn/ngày | Giảm 84.3% | Dự báo sát thực tế thu hoạch từng ngày. |
-| **Tổng chi phí thừa xe ($C_{over}$)** | 583.200.000 VNĐ | 156.600.000 VNĐ | Giảm 426.600.000 VNĐ (73.1%) | Giảm tối đa xe chạy rỗng. |
-| **Tổng chi phí thiếu xe ($C_{under}$)** | 768.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
-| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 52.200.000 VNĐ | +(52.2 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 20% cho các ngày bão mưa > 20mm). |
-| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **1.351.200.000 VNĐ** | **208.800.000 VNĐ** | **TIẾT KIỆM 1.142.400.000 VNĐ (GIẢM 84.5%)** | Cắt giảm hơn 1.14 tỷ đồng tổn thất cho toàn liên minh! |
+| **Truck MAE (Sai số số xe)** | **3.78 xe/ngày** | **1.11 xe/ngày** | **Giảm 70.6%** | Sai số chỉ còn lệch 1 cont mỗi ngày. |
+| **Truck WAPE (Sai số % có trọng số)** | **25.80%** | **7.59%** | **Giảm 70.6%** | Chuẩn sai số logistics quốc tế (<8%). |
+| **Sản lượng MAE** | 65.37 Tấn/ngày | 19.18 Tấn/ngày | Giảm 70.6% | Dự báo sát thực tế thu hoạch từng ngày. |
+| **Tổng chi phí thừa xe ($C_{over}$)** | 455.400.000 VNĐ | 283.500.000 VNĐ | Giảm 171.900.000 VNĐ (37.7%) | Giảm tối đa xe chạy rỗng. |
+| **Tổng chi phí thiếu xe ($C_{under}$)** | 1.008.000.000 VNĐ | **0 VNĐ** | **Giảm 100%** | Nhờ Lớp 3 bù xe, triệt tiêu 100% rủi ro thiếu xe làm hỏng vải. |
+| **Chi phí phạt cọc Lớp 2** | 0 VNĐ | 57.420.000 VNĐ | +(57.42 triệu) | Chi phí bảo hiểm rủi ro thời tiết (cọc 20% cho các ngày bão mưa > 20mm). |
+| **TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH** | **1.463.400.000 VNĐ** | **340.920.000 VNĐ** | **TIẾT KIỆM 1.122.480.000 VNĐ (GIẢM 76.7%)** | Cắt giảm hơn 1.12 tỷ đồng tổn thất cho toàn liên minh! |
 
 ### 5.2. Phương trình hồi quy kinh tế lượng OLS (92 ngày)
 $$\hat{Y}_t = -85.32 + 4.16 \cdot \text{Temp}_t - 4.42 \cdot \text{Rain}_t + 15.12 \cdot \text{Ripe\_pct}_t + 0.89 \cdot \text{Order\_ton}_t - 12.16 \cdot \text{PeakDay}_t$$

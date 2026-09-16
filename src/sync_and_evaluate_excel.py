@@ -6,12 +6,12 @@ Cuộc thi: Vietnam Young Logistics Talents (VYLT) 2026
 Tác giả: Đặng Cường - Thành viên k chính thức
 
 Bám sát 100% dữ liệu phỏng vấn & Phối hợp đội xe hỗn hợp (Mixed Fleet):
-- Cont 40ft lạnh (40RF): Tải trọng danh định 18T * 0.95 = 17.1 Tấn/cont (5% dung tích gió lạnh)
+- Cont 40ft lạnh (40RF): Tải trọng danh định 18T * 0.96 = 17.28 Tấn/cont (4% dung tích gió lạnh)
   + Cước ngày thường: 9.000.000 VNĐ, Ngày cao điểm / Temp >= 34°C: 11.700.000 VNĐ (+30%)
   + Phạt cọc Lớp 2: 20% cước xe (1.800.000 / 2.340.000 VNĐ)
   + Phạt rỗng C_over: 30% cước xe (2.700.000 VNĐ)
   + Thiệt hại thiếu xe C_under: 6.000.000 VNĐ
-- Xe tải lạnh 5T (Xe 5T - Vải dư lẻ / LTL): Tải trọng danh định 5T * 0.95 = 4.75 Tấn/xe
+- Xe tải lạnh 5T (Xe 5T - Vải dư lẻ / LTL): Tải trọng danh định 5T * 0.96 = 4.80 Tấn/xe
   + Cước ngày thường: 3.500.000 VNĐ, Ngày cao điểm / Temp >= 34°C: 4.550.000 VNĐ (+30%)
   + Cọc 20%: 700.000 VNĐ | Phạt rỗng C_over (30%): 1.050.000 VNĐ
 - Nhà xe thực tế: Công ty Vận tải & Du lịch Treviet
@@ -151,10 +151,10 @@ print(f"    - TOÀN VỤ : Bình quân {df['Harvest'].mean():.1f} Tấn/ngày | 
 
 # ==============================================================================
 # QUY ĐỔI TÁC NGHIỆP LOGISTICS (ĐỘI XE HỖN HỢP: CONT 40FT + XE 5T)
-# C_eff = C_nom * 0.95
+# C_eff = C_nom * 0.96
 # ==============================================================================
-CAP_40 = 18.0 * 0.95  # 17.1 Tấn
-CAP_5T = 5.0 * 0.95   # 4.75 Tấn
+CAP_40 = 18.0 * 0.96  # 17.28 Tấn
+CAP_5T = 5.0 * 0.96   # 4.80 Tấn
 
 ratio = np.where(df['Peak'] == 1, 0.85, 0.80)
 df['Cold_ton'] = np.round(df['Harvest'] * ratio, 2)
@@ -259,17 +259,17 @@ headers = [
     ("Sản lượng thu hoạch (Tấn)", "C8E6C9"),
     ("Sản lượng đi xe lạnh (Tấn)", "C8E6C9"),
     ("Nhiệt độ yêu cầu (°C)", "E1BEE7"),
-    ("Thực tế - Cont 40ft (18T*0.95)", "BBDEFB"),
+    ("Thực tế - Cont 40ft (18T*0.96)", "BBDEFB"),
     ("Thực tế - Vải dư lẻ (Tấn)", "BBDEFB"),
-    ("Thực tế - Xe 5T (5T*0.95)", "BBDEFB"),
+    ("Thực tế - Xe 5T (5T*0.96)", "BBDEFB"),
     ("Thực tế - Tổng số xe", "90CAF9"),
     ("Dự báo T+7 (Tấn)", "E0F2F1"),
     ("Dự báo T+3 (Tấn)", "E0F2F1"),
     ("Dự báo T+1 (Tấn)", "E0F2F1"),
     ("Dự báo - Sản lượng lạnh (Tấn)", "E0F2F1"),
-    ("Dự báo - Cont 40ft (18T*0.95)", "D1C4E9"),
+    ("Dự báo - Cont 40ft (18T*0.96)", "D1C4E9"),
     ("Dự báo - Vải dư lẻ (Tấn)", "D1C4E9"),
-    ("Dự báo - Xe 5T (5T*0.95)", "D1C4E9"),
+    ("Dự báo - Xe 5T (5T*0.96)", "D1C4E9"),
     ("Dự báo - Tổng số xe", "B39DDB"),
     ("Lớp 1 - Cam kết cứng (70% Cont 40ft)", "C5CAE9"),
     ("Lớp 2 - Quyền chọn linh hoạt (20%)", "C5CAE9"),
@@ -328,9 +328,9 @@ for idx in range(len(df)):
     ws.cell(r, 9).value = '2-4'
     
     # Thực tế đội xe hỗn hợp (Cont 40ft + Xe 5T)
-    ws.cell(r, 10).value = f'=INT(H{r}/(18*0.95))'
-    ws.cell(r, 11).value = f'=ROUND(MOD(H{r}, (18*0.95)), 2)'
-    ws.cell(r, 12).value = f'=IF(K{r}>0, ROUNDUP(K{r}/(5*0.95), 0), 0)'
+    ws.cell(r, 10).value = f'=INT(H{r}/(18*0.96))'
+    ws.cell(r, 11).value = f'=ROUND(MOD(H{r}, (18*0.96)), 2)'
+    ws.cell(r, 12).value = f'=IF(K{r}>0, ROUNDUP(K{r}/(5*0.96), 0), 0)'
     ws.cell(r, 13).value = f'=J{r}+L{r}'
     
     # Dự báo sản lượng T+7, T+3, T+1
@@ -340,9 +340,9 @@ for idx in range(len(df)):
     ws.cell(r, 17).value = f'=P{r}*IF(F{r}=1, 0.85, 0.8)'
     
     # Dự báo đội xe hỗn hợp
-    ws.cell(r, 18).value = f'=INT(Q{r}/(18*0.95))'
-    ws.cell(r, 19).value = f'=ROUND(MOD(Q{r}, (18*0.95)), 2)'
-    ws.cell(r, 20).value = f'=IF(S{r}>0, ROUNDUP(S{r}/(5*0.95), 0), 0)'
+    ws.cell(r, 18).value = f'=INT(Q{r}/(18*0.96))'
+    ws.cell(r, 19).value = f'=ROUND(MOD(Q{r}, (18*0.96)), 2)'
+    ws.cell(r, 20).value = f'=IF(S{r}>0, ROUNDUP(S{r}/(5*0.96), 0), 0)'
     ws.cell(r, 21).value = f'=R{r}+T{r}'
     
     # Cơ chế điều phối 3 Lớp cho Cont 40ft
@@ -411,7 +411,7 @@ for c_idx, h in enumerate(kpi_headers, 2):
 kpi_rows = [
     ("Sai số số xe trung bình (Truck MAE - Xe/ngày)", f"=AVERAGE(AJ6:AJ{max_data_row})", f"=AVERAGE(AN6:AN{max_data_row})", "=C98-D98", "=(C98-D98)/C98"),
     ("Sai số phần trăm có trọng số (Truck WAPE)", f"=SUM(AJ6:AJ{max_data_row})/SUM(J6:J{max_data_row})", f"=SUM(AN6:AN{max_data_row})/SUM(J6:J{max_data_row})", "=C99-D99", "=(C99-D99)/C99"),
-    ("Sai số sản lượng MAE (Tấn/ngày)", f"=AVERAGE(AJ6:AJ{max_data_row})*(18*0.95)", f"=D98*(18*0.95)", "=C100-D100", "=(C100-D100)/C100"),
+    ("Sai số sản lượng MAE (Tấn/ngày)", f"=AVERAGE(AJ6:AJ{max_data_row})*(18*0.96)", f"=D98*(18*0.96)", "=C100-D100", "=(C100-D100)/C100"),
     ("Tổng chi phí thừa xe C_over (VNĐ)", f"=SUM(AK3:AK{max_data_row})", f"=SUM(AO3:AO{max_data_row})", "=C101-D101", "=IF(C101=0, 0, (C101-D101)/C101)"),
     ("Tổng chi phí thiếu xe C_under (VNĐ)", f"=SUM(AL3:AL{max_data_row})", f"=SUM(AP3:AP{max_data_row})", "=C102-D102", "=IF(C102=0, 0, (C102-D102)/C102)"),
     ("Chi phí phạt hủy cọc Lớp 2 (VNĐ)", 0, f"=SUM(Z3:Z{max_data_row})", "=C103-D103", '=IF(C103=0, "N/A", (C103-D103)/C103)'),

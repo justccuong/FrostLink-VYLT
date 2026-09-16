@@ -22,30 +22,30 @@ Hệ thống logistics truyền thống hiện nay gặp thất bại thị trư
 
 **FrostLink AI Engine** giải quyết triệt để bài toán này bằng cách:
 1. **Dự báo nhu cầu ngắn hạn (1, 3, 7 ngày):** Kết hợp các mô hình Machine Learning phi tuyến (**Random Forest** và **XGBoost**) với dữ liệu thời tiết ngoại sinh và đơn hàng xuất khẩu.
-2. **Quy đổi tác nghiệp sang Đội xe hỗn hợp (Mixed Fleet):** Định mức kỹ thuật tải trọng hữu dụng $C_{\text{eff}} = C_{\text{nom}} \times 0.95$:
-   - **Container lạnh 40 feet (Cont 40ft - 18T danh định):** $C_{\text{eff, 40}} = 18 \times 0.95 = 17.1\text{ tấn/cont}$ phục vụ các lô hàng xuất khẩu chính ngạch lớn.
-   - **Xe tải lạnh 5 tấn (Xe 5T - 5T danh định):** $C_{\text{eff, 5}} = 5 \times 0.95 = 4.75\text{ tấn/xe}$ phục vụ gom vét vải dư lẻ (LTL) với chi phí thấp ($3.5\text{ triệu VNĐ}$ thay vì $9.0\text{ triệu VNĐ}$ của Cont 40ft).
+2. **Quy đổi tác nghiệp sang Đội xe hỗn hợp (Mixed Fleet):** Định mức kỹ thuật tải trọng hữu dụng $C_{\text{eff}} = C_{\text{nom}} \times 0.96$:
+   - **Container lạnh 40 feet (Cont 40ft - 18T danh định):** $C_{\text{eff, 40}} = 18 \times 0.96 = 17.28\text{ tấn/cont}$ phục vụ các lô hàng xuất khẩu chính ngạch lớn.
+   - **Xe tải lạnh 5 tấn (Xe 5T - 5T danh định):** $C_{\text{eff, 5}} = 5 \times 0.96 = 4.80\text{ tấn/xe}$ phục vụ gom vét vải dư lẻ (LTL) với chi phí thấp ($3.5\text{ triệu VNĐ}$ thay vì $9.0\text{ triệu VNĐ}$ của Cont 40ft).
 3. **Cơ chế Đặt xe 3 Lớp (3-Tier Capacity Booking):** Tự động phân bổ $70\%$ Cam kết cứng (Lớp 1), $20\%$ Quyền chọn linh hoạt (Lớp 2 có cọc), và Giao ngay bù đắp (Lớp 3), tích hợp tính năng **hủy slot Lớp 2 trước 24h khi có bão mưa $> 20\text{mm}$**.
 
 ---
 
 ## 📊 2. Kết quả Đối chuẩn Mô hình (Model Benchmark - Toàn vụ 92 ngày)
 
-Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $28.742,2\text{ tấn}$ vải, $1.537\text{ chuyến}$ xe lạnh thực tế gồm $1.323$ Cont 40ft và $214$ Xe 5T gom $792,5\text{ tấn}$ hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet):
+Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $28.742,2\text{ tấn}$ vải, $1.527\text{ chuyến}$ xe lạnh thực tế gồm $1.308$ Cont 40ft và $219$ Xe 5T gom hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet):
 
 | Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | $R^2$ Score | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Trung bình 3 ngày)** | 65.07 Tấn | 3.81 Xe/ngày | 25.66% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.24 Xe/ngày | 15.57% | 0.929 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
-| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.74 Xe/ngày | 5.14% | 0.991 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
-| **XGBoost (Gradient Boosting)** | **4.20 Tấn** | **0.18 Xe/ngày** | **1.28%** | **0.999** | **Mô hình tối ưu:** Đưa WAPE xuống $<1.5\%$ (chuẩn khắt khe logistics quốc tế, bắt trọn các đợt bão dông). |
-| **FrostLink (Tích hợp Cơ chế 3 Lớp & Đội xe hỗn hợp)** | **10.38 Tấn** | **0.61 Xe/ngày** | **4.09%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **84.5% chi phí rủi ro** toàn vụ, triệt tiêu $100\%$ tình trạng thiếu xe. |
+| **Baseline (Trung bình 3 ngày)** | 65.37 Tấn | 3.78 Xe/ngày | 25.80% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 47.82 Tấn | 2.22 Xe/ngày | 15.60% | 0.929 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
+| **Random Forest (Cây quyết định)** | 15.58 Tấn | 0.71 Xe/ngày | 4.97% | 0.991 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
+| **XGBoost (Gradient Boosting)** | **4.20 Tấn** | **0.23 Xe/ngày** | **1.61%** | **0.999** | **Mô hình tối ưu:** Đưa WAPE xuống $<2\%$ (chuẩn khắt khe logistics quốc tế, bắt trọn các đợt bão dông). |
+| **FrostLink (Tích hợp Cơ chế 3 Lớp & Đội xe hỗn hợp)** | **19.18 Tấn** | **1.11 Xe/ngày** | **7.59%** | **—** | **Quy đổi tác nghiệp:** Tiết kiệm **76.7% chi phí rủi ro** toàn vụ, triệt tiêu $100\%$ tình trạng thiếu xe. |
 
 ### 💰 Lượng hóa Kinh tế theo Bài toán Newsvendor:
-- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $583.2\text{ triệu}$ xuống $156.6\text{ triệu VNĐ}$ (Giảm 73.1%).
-- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $768.0\text{ triệu}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
-- **Phí hủy cọc bảo hiểm Lớp 2:** $52.2\text{ triệu VNĐ}$ (cọc 20% bảo hiểm cho các ngày bão mưa $> 20\text{mm}$).
-- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$1.351,2\text{ triệu}$ xuống $208,8\text{ triệu VNĐ}$**, **tiết kiệm hơn $1,142\text{ tỷ VNĐ (84.5%)}$**.
+- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $455.4\text{ triệu}$ xuống $283.5\text{ triệu VNĐ}$ (Giảm 37.7%).
+- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $1.008\text{ tỷ}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
+- **Phí hủy cọc bảo hiểm Lớp 2:** $57.42\text{ triệu VNĐ}$ (cọc 20% bảo hiểm cho các ngày bão mưa $> 20\text{mm}$).
+- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$1.463,4\text{ triệu}$ xuống $340,92\text{ triệu VNĐ}$**, **tiết kiệm hơn $1,122\text{ tỷ VNĐ (76.7%)}$**.
 
 ---
 

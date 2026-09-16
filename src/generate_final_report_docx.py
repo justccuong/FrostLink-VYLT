@@ -164,7 +164,7 @@ survey_data = [
     ["Hạng mục khảo sát", "Kết quả phỏng vấn thực tế", "Quy chuẩn đưa vào Mô hình FrostLink"],
     ["Sản lượng thu hoạch chính vụ", "Tháng 6 bình quân đạt 600 tấn vải tươi/ngày (Câu 1 PV).", "Tháng 6 bình quân 615.5 Tấn/ngày (dao động 150 - 850T tùy mưa/nắng). Toàn vụ 92 ngày đạt 28,742 Tấn."],
     ["Đối tác & Tuyến vận tải", "Cty Vận tải & Du lịch Treviet; chạy tuyến Lục Ngạn đi Cửa khẩu Hữu Nghị, Chi Ma, Hà Khẩu (Lạng Sơn).", "Mô phỏng chính xác tuyến gom hàng Lục Ngạn ra các cửa khẩu xuất khẩu phía Bắc."],
-    ["Phương tiện & Đội xe hỗn hợp", "Cont 40ft (18T danh định) chở lô xuất khẩu chính. Vải dư lẻ (LTL) cần xe tải lạnh nhỏ 5T để giải tỏa gom hàng kịp thời.", "Định mức hữu dụng: Tải trọng danh định × 0.95 (chừa 5% gió lạnh tuần hoàn). Cont 40ft = 17.1T (1,323 chuyến); Xe 5T = 4.75T (214 chuyến gom 792.5T hàng lẻ)."],
+    ["Phương tiện & Đội xe hỗn hợp", "Cont 40ft (18T danh định) chở lô xuất khẩu chính. Vải dư lẻ (LTL) cần xe tải lạnh nhỏ 5T để giải tỏa gom hàng kịp thời.", "Định mức hữu dụng: Tải trọng danh định × 0.96 (chừa 4% gió lạnh tuần hoàn). Cont 40ft = 17.28T (1,308 chuyến); Xe 5T = 4.80T (219 chuyến gom hàng lẻ)."],
     ["Giá cước vận tải", "Cont 40ft: ngày thường 9.000.000 VNĐ; cao điểm cháy xe tăng 30% = 11.700.000 VNĐ. Xe 5T: thường 3.500.000 VNĐ, cao điểm 4.550.000 VNĐ.", "Áp dụng giá cước phân tầng theo điều kiện thời tiết (Temp >= 34°C) hoặc ngày cao điểm gom hàng (PeakDay = 1)."],
     ["Tỷ lệ cọc & Hủy chuyến", "Đặt trước phải cọc giữ chỗ 20% giá cước. Nếu xe đến bãi mà không có hàng thì bồi thường xe chạy rỗng 30% tiền dầu.", "Cọc giữ chỗ Lớp 2: 20% (1.8tr thường, 2.34tr cao điểm). Phạt rỗng tại bãi (C_over): 30% cước Cont 40ft (2.7 triệu VNĐ)."],
     ["Tần suất thiếu xe", "Khoảng 50% thời điểm cao điểm gặp khó khăn trong tìm xe do phụ thuộc kích thước thùng.", "FrostLink thiết lập Lớp 3 (Spot buffer) bù xe giao ngay, triệt tiêu 100% tình trạng thiếu xe (C_under = 0 VNĐ)."]
@@ -249,11 +249,11 @@ p_ols_emp.paragraph_format.space_before = Pt(4)
 p_ols_emp.paragraph_format.space_after = Pt(8)
 add_omml_math(p_ols_emp, omml_ols_emp)
 
-add_heading_2("2.2. Quy đổi Tác nghiệp Đội xe Hỗn hợp: Cont 40ft & Xe 5T (C_eff = C_nom × 0.95)")
+add_heading_2("2.2. Quy đổi Tác nghiệp Đội xe Hỗn hợp: Cont 40ft & Xe 5T (C_eff = C_nom × 0.96)")
 add_paragraph(
     "Thay vì ép toàn bộ sản lượng vào container 40ft dẫn đến lãng phí diện tích và đội chi phí cước khi chỉ thừa vài tấn vải lẻ, "
     "FrostLink xây dựng cơ chế điều phối đội xe hỗn hợp (Mixed Fleet). Định mức tải trọng hữu dụng tuân thủ tiêu chuẩn kỹ thuật hàng lạnh: "
-    "Tải trọng hữu dụng = Tải trọng danh định × 0.95 (chừa 5% dung tích tuần hoàn khí lạnh theo khảo sát Treviet):"
+    "Tải trọng hữu dụng = Tải trọng danh định × 0.96 (chừa 4% dung tích tuần hoàn khí lạnh theo khảo sát Treviet):"
 )
 
 # Công thức Cont 40ft và Xe 5T OMML
@@ -262,13 +262,13 @@ omml_mixed_fleet = (
     '<m:r><m:t> = </m:t></m:r>'
     '<m:d><m:dPr><m:begChr m:val="⌊"/><m:endChr m:val="⌋"/></m:dPr>'
     '<m:e><m:f><m:num><m:sSub><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>Y</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub><m:r><m:t> × </m:t></m:r><m:sSub><m:e><m:r><m:t>α</m:t></m:r></m:e><m:sub><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>t</m:t></m:r></m:sub></m:sSub></m:num>'
-    '<m:den><m:r><m:t>18 × 0.95</m:t></m:r></m:den></m:f></m:e></m:d>'
+    '<m:den><m:r><m:t>18 × 0.96</m:t></m:r></m:den></m:f></m:e></m:d>'
     '<m:r><m:t>       |       </m:t></m:r>'
     '<m:sSub><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>N</m:t></m:r></m:e><m:sub><m:r><m:t>truck5,t</m:t></m:r></m:sub></m:sSub>'
     '<m:r><m:t> = </m:t></m:r>'
     '<m:d><m:dPr><m:begChr m:val="⌈"/><m:endChr m:val="⌉"/></m:dPr>'
     '<m:e><m:f><m:num><m:sSub><m:e><m:r><m:rPr><m:sty m:val="i"/></m:rPr><m:t>Y</m:t></m:r></m:e><m:sub><m:r><m:t>rem,t</m:t></m:r></m:sub></m:sSub></m:num>'
-    '<m:den><m:r><m:t>5 × 0.95</m:t></m:r></m:den></m:f></m:e></m:d>'
+    '<m:den><m:r><m:t>5 × 0.96</m:t></m:r></m:den></m:f></m:e></m:d>'
 )
 p_mixed = doc.add_paragraph()
 p_mixed.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -279,9 +279,9 @@ add_omml_math(p_mixed, omml_mixed_fleet)
 add_paragraph(
     "Trong đó:\n"
     "• α_t là tỷ lệ vải đạt tiêu chuẩn xuất khẩu đi chuỗi lạnh (80% ngày thường, 85% ngày cao điểm).\n"
-    "• C_eff,40 = 18 × 0.95 = 17.1 Tấn/cont: Tải trọng hữu dụng của Container 40 feet (chứa trọn lô xuất khẩu lớn).\n"
-    "• Y_rem,t = (Y_t × α_t) mod 17.1 (Tấn): Lượng vải dư lẻ cuối ngày sau khi đã đóng kín các container 40ft.\n"
-    "• C_eff,5 = 5 × 0.95 = 4.75 Tấn/xe: Tải trọng hữu dụng xe tải lạnh 5T (chuyên chở gom vét hàng lẻ LTL với cước phí chỉ 3.5tr so với 9tr của Cont 40ft, tiết kiệm hàng trăm triệu đồng cho HTX)."
+    "• C_eff,40 = 18 × 0.96 = 17.28 Tấn/cont: Tải trọng hữu dụng của Container 40 feet (chứa trọn lô xuất khẩu lớn).\n"
+    "• Y_rem,t = (Y_t × α_t) mod 17.28 (Tấn): Lượng vải dư lẻ cuối ngày sau khi đã đóng kín các container 40ft.\n"
+    "• C_eff,5 = 5 × 0.96 = 4.80 Tấn/xe: Tải trọng hữu dụng xe tải lạnh 5T (chuyên chở gom vét hàng lẻ LTL với cước phí chỉ 3.5tr so với 9tr của Cont 40ft, tiết kiệm hàng trăm triệu đồng cho HTX)."
 )
 
 add_heading_2("2.3. Công thức Phân bổ 3 Lớp Công suất (3-Tier Capacity Booking)")
@@ -367,13 +367,13 @@ tbl_kpi.autofit = False
 
 kpi_data = [
     ["Chỉ số KPI Đánh giá", "Mô hình nền (Baseline)", "FrostLink (Đề xuất)", "Mức giảm", "Tỷ lệ cải thiện"],
-    ["Sai số số xe trung bình (Truck MAE)", "3.87 Xe/ngày", "0.61 Xe/ngày", "3.26 Xe/ngày", "Giảm 84.3%"],
-    ["Sai số phần trăm có trọng số (Truck WAPE)", "26.06%", "4.09%", "21.97%", "Cải thiện 84.3%"],
-    ["Sai số sản lượng trung bình (MAE)", "66.09 Tấn/ngày", "10.38 Tấn/ngày", "55.72 Tấn/ngày", "Giảm 84.3%"],
-    ["Tổng chi phí thừa xe C_over (VNĐ)", "583.200.000 VNĐ", "156.600.000 VNĐ", "426.600.000 VNĐ", "Giảm 73.1%"],
-    ["Tổng chi phí thiếu xe C_under (VNĐ)", "768.000.000 VNĐ", "0 VNĐ", "768.000.000 VNĐ", "Triệt tiêu 100%"],
-    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "52.200.000 VNĐ", "+(52.200.000 VNĐ)", "Phí bảo hiểm rủi ro"],
-    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "1.351.200.000 VNĐ", "208.800.000 VNĐ", "1.142.400.000 VNĐ", "TIẾT KIỆM 84.5%"]
+    ["Sai số số xe trung bình (Truck MAE)", "3.78 Xe/ngày", "1.11 Xe/ngày", "2.67 Xe/ngày", "Giảm 70.6%"],
+    ["Sai số phần trăm có trọng số (Truck WAPE)", "25.80%", "7.59%", "18.21%", "Cải thiện 70.6%"],
+    ["Sai số sản lượng trung bình (MAE)", "65.37 Tấn/ngày", "19.18 Tấn/ngày", "46.19 Tấn/ngày", "Giảm 70.6%"],
+    ["Tổng chi phí thừa xe C_over (VNĐ)", "455.400.000 VNĐ", "283.500.000 VNĐ", "171.900.000 VNĐ", "Giảm 37.7%"],
+    ["Tổng chi phí thiếu xe C_under (VNĐ)", "1.008.000.000 VNĐ", "0 VNĐ", "1.008.000.000 VNĐ", "Triệt tiêu 100%"],
+    ["Chi phí phạt hủy cọc Lớp 2 (VNĐ)", "0 VNĐ", "57.420.000 VNĐ", "+(57.420.000 VNĐ)", "Phí bảo hiểm rủi ro"],
+    ["TỔNG CHI PHÍ RỦI RO CHUỖI LẠNH", "1.463.400.000 VNĐ", "340.920.000 VNĐ", "1.122.480.000 VNĐ", "TIẾT KIỆM 76.7%"]
 ]
 
 for r_idx, row in enumerate(kpi_data):
@@ -420,7 +420,7 @@ images_info = [
     ("eda_01_weather_yield_impact.png", "Hình 1: Tương quan giữa lượng mưa và sản lượng thu hoạch vải thiều qua 3 tháng mùa vụ (Lục Ngạn)"),
     ("eda_02_three_tier_dispatch.png", "Hình 2: Cơ chế điều phối công suất đội xe hỗn hợp (Cont 40ft & Xe 5T) và tính năng hủy slot Lớp 2 khi có bão"),
     ("eda_03_forecast_benchmark.png", "Hình 3: Đối chuẩn đường dự báo số lượng xe cont giữa Baseline truyền thống và FrostLink"),
-    ("eda_04_economic_risk_cost.png", "Hình 4: Lượng hóa giá trị kinh tế theo bài toán Newsvendor (Tiết kiệm hơn 1.14 tỷ VNĐ chi phí rủi ro)")
+    ("eda_04_economic_risk_cost.png", "Hình 4: Lượng hóa giá trị kinh tế theo bài toán Newsvendor (Tiết kiệm hơn 1.12 tỷ VNĐ chi phí rủi ro)")
 ]
 
 for img_name, caption in images_info:
@@ -448,9 +448,9 @@ for img_name, caption in images_info:
 add_heading_1("6. KẾT LUẬN & GIÁ TRỊ THƯƠNG MẠI")
 add_paragraph(
     "1. Tính khả thi cao: Mô hình bám sát 100% dữ liệu phỏng vấn nhà xe Treviet và định mức tải trọng kỹ thuật đội xe hỗn hợp "
-    "(Cont 40ft: 17.1 tấn/cont; Xe 5T: 4.75 tấn/xe), đáp ứng trọn vẹn 1,537 chuyến xe xuất khẩu toàn vụ.\n"
-    "2. Hiệu quả tài chính vượt trội: Giúp Cụm liên minh HTX và Doanh nghiệp đầu mối tiết kiệm hơn 1.14 tỷ đồng (84.5%) chi phí rủi ro "
-    "trong suốt 3 tháng mùa vụ, giảm 84.3% sai số điều xe và triệt tiêu hoàn toàn tổn thất do cháy xe thiếu phương tiện.\n"
+    "(Cont 40ft: 17.28 tấn/cont; Xe 5T: 4.80 tấn/xe), đáp ứng trọn vẹn 1,527 chuyến xe xuất khẩu toàn vụ.\n"
+    "2. Hiệu quả tài chính vượt trội: Giúp Cụm liên minh HTX và Doanh nghiệp đầu mối tiết kiệm hơn 1.12 tỷ đồng (76.7%) chi phí rủi ro "
+    "trong suốt 3 tháng mùa vụ, giảm 70.6% sai số điều xe và triệt tiêu hoàn toàn tổn thất do cháy xe thiếu phương tiện.\n"
     "3. Khả năng mở rộng: Thuật toán có thể đóng gói thành API nhẹ nhàng tích hợp vào hệ thống TMS hoặc Web portal điều hành mùa vụ của chính quyền địa phương.",
     bold_prefix="Khẳng định giá trị của Đề án: "
 )

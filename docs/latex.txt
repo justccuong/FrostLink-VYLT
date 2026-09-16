@@ -42,23 +42,23 @@ Giải thích biến số:
 
 --------------------------------------------------------------------------------
 2. CÔNG THỨC QUY ĐỔI TÁC NGHIỆP ĐỘI XE HỖN HỢP (CONT 40FT & XE 5T)
-Định mức kỹ thuật: Tải trọng hữu dụng = Tải trọng danh định × 0.95
+Định mức kỹ thuật: Tải trọng hữu dụng = Tải trọng danh định × 0.96
 --------------------------------------------------------------------------------
 
 [2.1] Quy đổi số lượng Container 40 feet (Lô hàng lớn chính ngạch):
 \[
-N_{\text{cont40}, t} = \left\lfloor \frac{Y_t \times \alpha_t}{18 \times 0.95} \right\rfloor
+N_{\text{cont40}, t} = \left\lfloor \frac{Y_t \times \alpha_t}{18 \times 0.96} \right\rfloor
 \]
 
 [2.2] Lượng vải dư lẻ sau khi đóng kín các container 40ft (Hàng lẻ LTL):
 \[
-Y_{\text{rem}, t} = (Y_t \times \alpha_t) \bmod (18 \times 0.95) \quad (\text{Tấn})
+Y_{\text{rem}, t} = (Y_t \times \alpha_t) \bmod (18 \times 0.96) \quad (\text{Tấn})
 \]
 
 [2.3] Quy đổi số lượng Xe tải lạnh 5 tấn (Gom vét vải lẻ):
 \[
 N_{\text{truck5}, t} = \begin{cases}
-\left\lceil \frac{Y_{\text{rem}, t}}{5 \times 0.95} \right\rceil, & \text{khi } Y_{\text{rem}, t} > 0 \\
+\left\lceil \frac{Y_{\text{rem}, t}}{5 \times 0.96} \right\rceil, & \text{khi } Y_{\text{rem}, t} > 0 \\
 0, & \text{khi } Y_{\text{rem}, t} = 0
 \end{cases}
 \]
@@ -69,8 +69,8 @@ N_{\text{total}, t} = N_{\text{cont40}, t} + N_{\text{truck5}, t}
 \]
 
 Giải thích tham số tác nghiệp:
-- 18 \times 0.95 = 17.1\,\text{Tấn/cont}: Tải trọng hữu dụng Cont 40ft lạnh (chừa 5% dung tích khí lạnh tuần hoàn).
-- 5 \times 0.95 = 4.75\,\text{Tấn/xe}: Tải trọng hữu dụng xe tải lạnh 5T (chuyên trách gom vét hàng lẻ).
+- 18 \times 0.96 = 17.28\,\text{Tấn/cont}: Tải trọng hữu dụng Cont 40ft lạnh (chừa 4% dung tích khí lạnh tuần hoàn).
+- 5 \times 0.96 = 4.80\,\text{Tấn/xe}: Tải trọng hữu dụng xe tải lạnh 5T (chuyên trách gom vét hàng lẻ).
 - \alpha_t: Tỷ lệ hàng đạt tiêu chuẩn xuất khẩu đi chuỗi lạnh (\alpha_t \approx 0.80 - 0.85).
 - \lfloor \dots \rfloor: Ký hiệu hàm sàn (Floor function - đóng kín cont).
 - \lceil \dots \rceil: Ký hiệu hàm trần (Ceiling function - chở hết hàng lẻ).
