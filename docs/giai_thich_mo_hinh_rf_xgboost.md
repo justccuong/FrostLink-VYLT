@@ -1,7 +1,7 @@
 # TÀI LIỆU CHUYÊN SÂU: GIẢI THÍCH TOÀN DIỆN MÔ HÌNH RANDOM FOREST & XGBOOST
 **Đề án: FrostLink – Nền tảng điều phối công suất chuỗi lạnh mùa vụ (Lục Ngạn)**  
 **Cuộc thi: Vietnam Young Logistics Talents (VYLT) 2026**  
-*Tác giả: Đặng Cường (Lead AI Engineer) - Cẩm nang phòng vệ phản biện dành cho buổi họp và thuyết trình*
+*Tác giả: Đặng Cường - Thành viên k chính thức (Cẩm nang phòng vệ phản biện dành cho buổi họp và thuyết trình)*
 
 ---
 

@@ -1,6 +1,6 @@
 # TỔNG KẾT TOÀN DIỆN CÔNG VIỆC ĐÃ HOÀN THÀNH (AI & LOGISTICS MODEL 5.1)
 **Đề án: FrostLink – Nền tảng điều phối công suất chuỗi lạnh mùa vụ (Lục Ngạn, Bắc Giang)**  
-*Dành cho: Đặng Cường (Lead AI Engineer) báo cáo trong buổi họp nhóm 10h tối*
+*Tác giả / Báo cáo: Đặng Cường - Thành viên k chính thức (Buổi họp nhóm 10h tối)*
 
 ---
 

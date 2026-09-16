@@ -1,5 +1,6 @@
 # ĐẶC TẢ MÔ HÌNH ĐỊNH LƯỢNG VÀ DỰ BÁO NHU CẦU XE LẠNH (MỤC 5.1)
 **Đề án: FrostLink – Nền tảng điều phối công suất chuỗi lạnh nông sản mùa vụ**  
+*Tác giả: Đặng Cường - Thành viên k chính thức*  
 *Tài liệu giải trình phương pháp luận và cơ sở kinh tế dành cho Hội đồng phản biện / Giám khảo khối ngành Kinh tế & Logistics*
 
 ---

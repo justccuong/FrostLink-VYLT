@@ -1,4 +1,5 @@
 # BÁO CÁO KẾT QUẢ ĐỐI CHUẨN MÔ HÌNH DỰ BÁO (MỤC 5.1 FROSTLINK)
+*Tác giả: Đặng Cường - Thành viên k chính thức*
 
 ### 1. Bảng đối chuẩn hiệu quả giữa các cấp độ mô hình
 

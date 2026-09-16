@@ -3,6 +3,7 @@
 TẠO BÁO CÁO TỔNG QUAN HOÀN CHỈNH VỚI ĐỊNH DẠNG TOÁN HỌC NATIVE WORD OMML
 Đề án: FrostLink - Nền tảng điều phối công suất chuỗi lạnh mùa vụ (Lục Ngạn)
 Cuộc thi: Vietnam Young Logistics Talents (VYLT) 2026
+Tác giả: Đặng Cường - Thành viên k chính thức
 """
 
 import sys, io
@@ -18,6 +19,7 @@ from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 
 doc = docx.Document()
+doc.core_properties.author = "Đặng Cường - Thành viên k chính thức"
 
 # Thiết lập lề trang chuẩn A4 (2.0 cm)
 for section in doc.sections:
@@ -143,7 +145,7 @@ r_t2.font.color.rgb = RGBColor(38, 50, 56)
 p_sub = doc.add_paragraph()
 p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
 p_sub.paragraph_format.space_after = Pt(16)
-r_sub = p_sub.add_run("Đề án: FrostLink – Nền tảng điều phối chuỗi lạnh nông sản mùa vụ (Lục Ngạn)\nCuộc thi: Vietnam Young Logistics Talents (VYLT) 2026")
+r_sub = p_sub.add_run("Đề án: FrostLink – Nền tảng điều phối chuỗi lạnh nông sản mùa vụ (Lục Ngạn)\nCuộc thi: Vietnam Young Logistics Talents (VYLT) 2026\nTác giả: Đặng Cường - Thành viên k chính thức")
 r_sub.font.name = 'Segoe UI'
 r_sub.font.size = Pt(10)
 r_sub.font.italic = True
@@ -460,4 +462,6 @@ add_paragraph(
 
 output_path = os.path.join(DOCS_DIR, "Bao_cao_tong_quan_mo_hinh_FrostLink_5.1.docx")
 doc.save(output_path)
-print(f"[+] ĐÃ TẠO THÀNH CÔNG BÁO CÁO WORD TỔNG QUAN NATIVE OMML: {output_path}")
+root_output_path = os.path.join(REPO_ROOT, "Bao_cao_tong_quan_mo_hinh_FrostLink_5.1.docx")
+doc.save(root_output_path)
+print(f"[+] ĐÃ TẠO THÀNH CÔNG BÁO CÁO WORD TỔNG QUAN NATIVE OMML: {output_path} và {root_output_path}")

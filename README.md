@@ -8,7 +8,7 @@
 > **Đề án:** FrostLink – Nền tảng điều phối công suất chuỗi lạnh mùa vụ (Lục Ngạn, Bắc Giang)  
 > **Hạng mục:** Mô-đun 5.1 – Dự báo nhu cầu ngắn hạn và Đặt trước công suất vận tải lạnh 3 lớp  
 > **Cuộc thi:** Vietnam Young Logistics Talents (VYLT) 2026  
-> **Tác giả:** Đặng Cường THÀNH VIÊN K CHÍNH THỨC
+> **Tác giả:** Đặng Cường - Thành viên k chính thức
 
 ---
 
