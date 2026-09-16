@@ -9,16 +9,16 @@
 
 ### Bước 4. Tối ưu hóa Điều phối Toàn mạng bằng Quy hoạch Tuyến tính Nguyên hỗn hợp (MILP)
 
-Sau khi động cơ AI hoàn tất dự báo sản lượng và cơ chế Newsvendor xác lập hạn ngạch công suất xe lạnh cần thiết cho từng ngày, nền tảng **FROSTLINK** kích hoạt thuật toán **Quy hoạch Tuyến tính Nguyên hỗn hợp (Mixed-Integer Linear Programming - MILP)** để tự động hóa việc gán đơn hàng, ghép chuyến đa tầng (LTL gom hàng lẻ) và triệt tiêu quãng đường xe chạy rỗng (*Deadhead km*).
+Sau khi động cơ AI hoàn tất dự báo sản lượng và cơ chế Newsvendor xác lập hạn ngạch công suất xe lạnh cần thiết cho từng ngày, nền tảng **FROSTLINK** kích hoạt thuật toán **Quy hoạch Tuyến tính Nguyên hỗn hợp (Mixed-Integer Linear Programming - MILP)** để tự động hóa việc gán đơn hàng, ghép tuyến tối ưu và triệt tiêu quãng đường xe chạy rỗng (*Deadhead km*).
 
 #### 1. Hệ thống Ký hiệu & Biến số Mô hình
 * **Tập hợp chỉ số (Sets):**
   * $I$: Tập hợp các đơn hàng thu hoạch từ các Hợp tác xã ($i \in I$).
-  * $J$: Tập hợp các phương tiện vận tải lạnh khả dụng trên mạng lưới ($j \in J$), gồm Container lạnh 40 feet ($C_{\text{eff, Cont40}} = 17.28$ tấn) và Xe tải lạnh 5 tấn ($C_{\text{eff, Truck5}} = 4.80$ tấn).
+  * $J$: Tập hợp các phương tiện Container lạnh 40 feet khả dụng trên mạng lưới ($j \in J$), có tải trọng hữu dụng thực tế $C_j = C_{\text{eff, Cont40}} = 17.28$ tấn/cont.
 * **Tham số kinh tế & vận hành (Parameters):**
   * $w_i$: Trọng lượng hàng hóa của đơn hàng $i$ (Tấn).
-  * $C_j$: Tải trọng hữu dụng tối đa của phương tiện $j$ (Tấn).
-  * $\text{FixedCost}_j$: Chi phí cố định mở xe khi phương tiện $j$ được huy động nổ máy (VNĐ/xe).
+  * $C_j$: Tải trọng hữu dụng tối đa của Container lạnh 40 feet $j$ ($C_j = 17.28$ Tấn/cont).
+  * $\text{FixedCost}_j$: Chi phí cố định mở xe khi Container lạnh 40 feet $j$ được huy động lăn bánh (định mức 9.0 triệu VNĐ/cont).
   * $\text{DeadheadCost}_{ji}$: Chi phí phát sinh do xe $j$ chạy rỗng từ điểm định vị hiện tại đến điểm bốc hàng của HTX $i$ (VNĐ).
   * $\text{TransitCost}_{ij}$: Chi phí vận chuyển chính tuyến có tải từ HTX $i$ đến cửa khẩu/kho đích (VNĐ).
 * **Biến quyết định (Decision Variables):**

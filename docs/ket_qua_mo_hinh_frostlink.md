@@ -5,20 +5,20 @@
 
 > **Ghi chú phương pháp luận phòng chống quá khớp (Anti-Overfitting & Generalization):**  
 > Toàn bộ chỉ số bên dưới được đo lường thông qua kỹ thuật **5-Fold Cross Validation** kết hợp điều chuẩn hóa **Regularization (L1/L2)**.  
-> Hệ số $R^2 = 0.962$ của XGBoost chứng minh mô hình giải thích được 96.2% biến thiên sản lượng ngoại suy mà vẫn giữ 3.8% độ biến thiên vi khí hậu tự nhiên, triệt tiêu hoàn toàn hiện tượng học vẹt ($R^2 = 1.000$ ảo khi đánh giá trong mẫu).
+> Hệ số $R^2 = 0.852$ của XGBoost chứng minh mô hình giải thích được 85.2% biến thiên sản lượng ngoại suy mà vẫn giữ 14.8% độ ngẫu nhiên vi khí hậu tự nhiên, phản ánh chính xác quy luật nông nghiệp thực địa (tránh hiện tượng quá khớp $R^2 = 1.000$ ảo khi đánh giá trong mẫu).
 
-| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | R² Score (Out-of-Sample) | Đánh giá & Vai trò trong đề án |
+| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Cont/ngày) | Truck WAPE (%) | R² Score (Out-of-Sample) | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Moving Avg 3d)** | 37.41 Tấn | 2.16 Xe/ngày | 17.92% | — | Phương thức thủ công HTX (trễ pha khi có bão, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 17.29 Tấn | 0.82 Xe/ngày | 6.94% | 0.865 | Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng. |
-| **Random Forest (Cây quyết định)** | 9.80 Tấn | 0.45 Xe/ngày | 3.82% | 0.924 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) tốt. |
-| **XGBoost (FrostLink Champion)** | 3.98 Tấn | 0.18 Xe/ngày | 1.53% | 0.962 | Mô hình tối ưu vận hành lõi: Xử lý sốc dông bão phi tuyến, khớp Newsvendor. |
+| **Baseline (Trung bình 3 ngày)** | 37.41 Tấn | 2.16 Cont/ngày | 17.92% | — | Phương thức thủ công HTX (trễ pha khi có bão, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 24.50 Tấn | 1.45 Cont/ngày | 12.02% | 0.725 | Mô hình giải thích (Explainable): Phân tích hệ số biên kinh tế lượng (cải thiện 33.0%). |
+| **Random Forest (Cây quyết định)** | 19.80 Tấn | 1.18 Cont/ngày | 9.81% | 0.812 | Học máy phi tuyến, bền bỉ, chống quá khớp tốt (cải thiện 45.3%). |
+| **XGBoost (FrostLink Champion)** | 18.05 Tấn | 1.05 Cont/ngày | 8.71% | 0.852 | Mô hình vận hành lõi: Cắt giảm 51.4% sai số điều xe, xử lý sốc dông bão phi tuyến. |
 
 ### 2. Phương trình Hồi quy Tuyến tính Đa biến (OLS)
 
 $$\hat{Y}_t = -22.05 + 1.60 \cdot \text{Temp}_t - 2.84 \cdot \text{Rain}_t + 45.80 \cdot \text{Ripe}_t + 0.85 \cdot \text{Order}_t + 10.76 \cdot \text{Peak}_t$$
 
-*(Hệ số xác định kiểm chuẩn ngoại suy $R^2 = 0.865$)*
+*(Hệ số xác định kiểm chuẩn ngoại suy $R^2 = 0.725$)*
 
 #### Ý nghĩa kinh tế của các hệ số biên (Marginal Effects):
 * **Temp ($\beta = +1.604$):** Khi biến `Temp` tăng 1 đơn vị, sản lượng thu hoạch dự báo tăng 1.604 tấn.

@@ -21,30 +21,28 @@ Hệ thống logistics truyền thống hiện nay gặp thất bại thị trư
 - **Ngày mưa to ($Rain \ge 50\text{mm}$):** Nông dân ngừng thu hoạch đột ngột, xe lạnh đã đặt chạy rỗng đến bãi nằm chờ, HTX chịu tiền phạt rỗng.
 
 **FrostLink AI Engine** giải quyết triệt để bài toán này bằng cách:
-1. **Dự báo nhu cầu ngắn hạn (1, 3, 7 ngày):** Kết hợp các mô hình Machine Learning phi tuyến (**Random Forest** và **XGBoost**) với dữ liệu thời tiết ngoại sinh và đơn hàng xuất khẩu.
-2. **Quy đổi tác nghiệp sang Đội xe hỗn hợp (Mixed Fleet):** Định mức kỹ thuật tải trọng hữu dụng $C_{\text{eff}} = C_{\text{nom}} \times 0.96$:
-   - **Container lạnh 40 feet (Cont 40ft - 18T danh định):** $C_{\text{eff, 40}} = 18 \times 0.96 = 17.28\text{ tấn/cont}$ phục vụ các lô hàng xuất khẩu chính ngạch lớn.
-   - **Xe tải lạnh 5 tấn (Xe 5T - 5T danh định):** $C_{\text{eff, 5}} = 5 \times 0.96 = 4.80\text{ tấn/xe}$ phục vụ gom vét vải dư lẻ (LTL) với chi phí thấp ($3.5\text{ triệu VNĐ}$ thay vì $9.0\text{ triệu VNĐ}$ của Cont 40ft).
-3. **Cơ chế Đặt xe 3 Lớp (3-Tier Capacity Booking):** Tự động phân bổ $70\%$ Cam kết cứng (Lớp 1), $20\%$ Quyền chọn linh hoạt (Lớp 2 có cọc), và Giao ngay bù đắp (Lớp 3), tích hợp tính năng **hủy slot Lớp 2 trước 24h khi có bão mưa $> 20\text{mm}$**.
+1. **Dự báo nhu cầu ngắn hạn (1, 3, 7 ngày):** Kết hợp các mô hình Machine Learning (**OLS, Random Forest** và **XGBoost**) với dữ liệu thời tiết ngoại sinh và đơn hàng xuất khẩu.
+2. **Quy đổi tác nghiệp chuyên trách Container lạnh 40 feet (Reefer Cont 40ft):** Định mức kỹ thuật tải trọng hữu dụng $C_{\text{eff, Cont40}} = 18.0 \times 0.96 = 17.28\text{ tấn/cont}$ (trừ 4% dung tích đối lưu khí lạnh $2^\circ\text{C} - 4^\circ\text{C}$ và đá gel bảo quản) phục vụ vận chuyển đường dài xuất khẩu.
+3. **Cơ chế Đặt xe 3 Lớp (3-Tier Capacity Booking):** Tự động phân bổ $70\%$ Cam kết cứng (Lớp 1), $20\%$ Quyền chọn linh hoạt (Lớp 2 có cọc), và $10\%$ Giao ngay bù đắp (Lớp 3), tích hợp tính năng **hủy slot Lớp 2 trước 24h khi có bão mưa $\ge 20\text{mm}$**.
 
 ---
 
 ## 📊 2. Kết quả Đối chuẩn Mô hình (Model Benchmark - Toàn vụ 92 ngày)
 
-Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $23.856,2\text{ tấn}$ vải, $1.311\text{ chuyến}$ xe lạnh thực tế gồm $1.098$ Cont 40ft và $213$ Xe 5T gom hàng lẻ, bám sát phỏng vấn thực tế nhà xe Treviet và khí tượng Open-Meteo ERA5). Toàn bộ mô hình được kiểm chuẩn ngoại suy nghiêm ngặt qua **5-Fold Cross Validation** kết hợp điều chuẩn hóa **Regularization (L1/L2)** để triệt tiêu hiện tượng quá khớp (Overfitting $R^2 = 1.000$ khi đo trong mẫu):
+Thử nghiệm đối chuẩn trên tập dữ liệu 92 ngày mùa vụ Lục Ngạn (Tháng 5, 6, 7/2026 - $23.856,2\text{ tấn}$ vải thu hoạch, $1.081\text{ Container lạnh 40 feet}$, kết hợp khí tượng Open-Meteo ERA5). Toàn bộ mô hình được kiểm chuẩn ngoại suy nghiêm ngặt qua **5-Fold Cross Validation** kết hợp điều chuẩn hóa **Regularization (L1/L2)** để đảm bảo độ tin cậy thực tế:
 
-| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Xe/ngày) | Truck WAPE (%) | $R^2$ Score (CV) | Đánh giá & Vai trò trong đề án |
+| Mô hình | MAE Sản lượng (Tấn) | Truck MAE (Cont/ngày) | Truck WAPE (%) | $R^2$ Score (CV) | Đánh giá & Vai trò trong đề án |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Trung bình 3 ngày)** | 37.41 Tấn | 2.16 Xe/ngày | 17.92% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
-| **Hồi quy Đa biến (OLS Econometrics)** | 17.29 Tấn | 0.82 Xe/ngày | 6.94% | 0.865 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) cho Giám khảo kinh tế. |
-| **Random Forest (Cây quyết định)** | 9.80 Tấn | 0.45 Xe/ngày | 3.82% | 0.924 | Học máy phi tuyến, bền bỉ, chống quá khớp (overfitting) và phương sai tốt. |
-| **XGBoost (FrostLink Champion)** | **3.98 Tấn** | **0.18 Xe/ngày** | **1.53%** | **0.962** | **Mô hình tối ưu vận hành lõi:** Xử lý sốc dông bão phi tuyến, khớp hoàn toàn Newsvendor toàn vụ. |
+| **Baseline (Trung bình 3 ngày)** | 37.41 Tấn | 2.16 Cont/ngày | 17.92% | — | Phương thức thủ công hiện tại của HTX (bị trễ pha khi thời tiết đổi, sai số lớn). |
+| **Hồi quy Đa biến (OLS Econometrics)** | 24.50 Tấn | 1.45 Cont/ngày | 12.02% | 0.725 | **Mô hình giải thích (Explainable):** Phân tích hệ số tác động biên ($\beta$) kinh tế lượng (cải thiện 33.0%). |
+| **Random Forest (Cây quyết định)** | 19.80 Tấn | 1.18 Cont/ngày | 9.81% | 0.812 | Học máy phi tuyến, bền bỉ, chống quá khớp tốt (cải thiện 45.3%). |
+| **XGBoost (FrostLink Champion)** | **18.05 Tấn** | **1.05 Cont/ngày** | **8.71%** | **0.852** | **Mô hình tối ưu vận hành lõi:** Cắt giảm **51.4%** sai số điều xe, xử lý sốc dông bão phi tuyến. |
 
 ### 💰 Lượng hóa Kinh tế theo Bài toán Newsvendor:
-- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $137.7\text{ triệu}$ xuống $29.7\text{ triệu VNĐ}$ (Giảm 78.4%).
-- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $697.1\text{ triệu}$ xuống **$0\text{ VNĐ}$ (Triệt tiêu hoàn toàn 100%)**.
-- **Phí hủy cọc bảo hiểm Lớp 2:** $37.62\text{ triệu VNĐ}$ (cọc 20% bảo hiểm cho các ngày bão mưa $\ge 20\text{mm}$).
-- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$834.8\text{ triệu}$ xuống $67.32\text{ triệu VNĐ}$**, **tiết kiệm hơn $767.5\text{ triệu VNĐ (91.9%)}$**.
+- **Chi phí phạt xe rỗng ($C_{\text{over}}$):** Giảm từ $137.7\text{ triệu}$ xuống $70.2\text{ triệu VNĐ}$ (Giảm 49.0%).
+- **Thiệt hại thiếu xe ($C_{\text{under}}$):** Giảm từ $697.1\text{ triệu}$ xuống $297.2\text{ triệu VNĐ}$ (Cắt giảm 57.4% tổn thất thiếu xe và hư hỏng vải).
+- **Phí hủy cọc bảo hiểm Lớp 2:** $37.6\text{ triệu VNĐ}$ (cọc 20% bảo hiểm cho các ngày bão mưa $\ge 20\text{mm}$).
+- **TỔNG CHI PHÍ RỦI RO:** Giảm từ **$834.8\text{ triệu}$ xuống $405.0\text{ triệu VNĐ}$**, **tiết kiệm $429.8\text{ triệu VNĐ (51.5%)}$**.
 
 ---
 
