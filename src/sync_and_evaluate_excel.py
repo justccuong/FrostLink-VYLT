@@ -170,24 +170,24 @@ df['Price_Truck5'] = np.where((df['Temp'] >= 34) | (df['Peak'] == 1), 4_550_000,
 
 # Mô hình dự báo T+7, T+3, T+1 (OLS)
 ols_t7 = LinearRegression().fit(df[['Order']], df['Harvest'])
-df['Pred_T7'] = np.round(ols_t7.predict(df[['Order']]), 1)
+df['Pred_T7'] = np.maximum(15.0, np.round(ols_t7.predict(df[['Order']]), 1))
 
 ols_t3 = LinearRegression().fit(df[['Temp', 'Rain', 'Ripe', 'Order']], df['Harvest'])
-df['Pred_T3'] = np.round(ols_t3.predict(df[['Temp', 'Rain', 'Ripe', 'Order']]), 1)
+df['Pred_T3'] = np.maximum(15.0, np.round(ols_t3.predict(df[['Temp', 'Rain', 'Ripe', 'Order']]), 1))
 
 ols_t1 = LinearRegression().fit(df[['Temp', 'Rain', 'Ripe', 'Order', 'Peak']], df['Harvest'])
-df['Pred_T1'] = np.round(ols_t1.predict(df[['Temp', 'Rain', 'Ripe', 'Order', 'Peak']]), 1)
+df['Pred_T1'] = np.maximum(15.0, np.round(ols_t1.predict(df[['Temp', 'Rain', 'Ripe', 'Order', 'Peak']]), 1))
 
 # Nhu cầu xe FrostLink dựa trên T+1
-df['Pred_Cold_ton'] = np.round(df['Pred_T1'] * ratio, 2)
-df['Frost_Cont40'] = np.floor(df['Pred_Cold_ton'] / CAP_40).astype(int)
+df['Pred_Cold_ton'] = np.maximum(0.0, np.round(df['Pred_T1'] * ratio, 2))
+df['Frost_Cont40'] = np.maximum(0, np.floor(df['Pred_Cold_ton'] / CAP_40).astype(int))
 df['Frost_Rem_ton'] = np.round(df['Pred_Cold_ton'] % CAP_40, 2)
 df['Frost_Truck5'] = np.where(df['Frost_Rem_ton'] > 0, np.ceil(df['Frost_Rem_ton'] / CAP_5T).astype(int), 0)
 df['Frost_Total_Vehicles'] = df['Frost_Cont40'] + df['Frost_Truck5']
 
-# Cơ chế điều phối 3 Lớp cho Cont 40ft
-df['L1_Cont40'] = np.round(df['Frost_Cont40'] * 0.70).astype(int)
-df['L2_Plan_Cont40'] = np.minimum(np.ceil(df['Frost_Cont40'] * 0.20), np.maximum(0, df['Frost_Cont40'] - df['L1_Cont40'])).astype(int)
+# Cơ chế điều phối 3 Lớp cho Cont 40ft (Đảm bảo không bao giờ âm)
+df['L1_Cont40'] = np.maximum(0, np.round(df['Frost_Cont40'] * 0.70).astype(int))
+df['L2_Plan_Cont40'] = np.maximum(0, np.minimum(np.ceil(df['Frost_Cont40'] * 0.20), np.maximum(0, df['Frost_Cont40'] - df['L1_Cont40'])).astype(int))
 df['L2_Run_Cont40'] = np.where(df['Rain'] > 20, 0, df['L2_Plan_Cont40'])
 df['L2_Penalty'] = np.where(df['Rain'] > 20, df['L2_Plan_Cont40'] * 0.20 * df['Price_Cont40'], 0) # Cọc 20%
 df['L3_Spot_Cont40'] = np.maximum(0, df['Actual_Cont40'] - df['L1_Cont40'] - df['L2_Run_Cont40']).astype(int)
@@ -332,21 +332,21 @@ for idx in range(len(df)):
     ws.cell(r, 12).value = f'=IF(K{r}>0, ROUNDUP(K{r}/(5*0.96), 0), 0)'
     ws.cell(r, 13).value = f'=J{r}+L{r}'
     
-    # Dự báo sản lượng T+7, T+3, T+1
-    ws.cell(r, 14).value = f'=ROUND(TREND(G$3:G${max_data_row}, E$3:E${max_data_row}, E{r}), 1)'
-    ws.cell(r, 15).value = f'=ROUND(TREND(G$3:G${max_data_row}, B$3:E${max_data_row}, B{r}:E{r}), 1)'
-    ws.cell(r, 16).value = f'=ROUND(TREND(G$3:G${max_data_row}, B$3:F${max_data_row}, B{r}:F{r}), 1)'
+    # Dự báo sản lượng T+7, T+3, T+1 (Giới hạn tối thiểu 15 Tấn)
+    ws.cell(r, 14).value = f'=MAX(15, ROUND(TREND(G$3:G${max_data_row}, E$3:E${max_data_row}, E{r}), 1))'
+    ws.cell(r, 15).value = f'=MAX(15, ROUND(TREND(G$3:G${max_data_row}, B$3:E${max_data_row}, B{r}:E{r}), 1))'
+    ws.cell(r, 16).value = f'=MAX(15, ROUND(TREND(G$3:G${max_data_row}, B$3:F${max_data_row}, B{r}:F{r}), 1))'
     ws.cell(r, 17).value = f'=P{r}*IF(F{r}=1, 0.85, 0.8)'
     
     # Dự báo đội xe hỗn hợp
-    ws.cell(r, 18).value = f'=INT(Q{r}/(18*0.96))'
+    ws.cell(r, 18).value = f'=MAX(0, INT(Q{r}/(18*0.96)))'
     ws.cell(r, 19).value = f'=ROUND(MOD(Q{r}, (18*0.96)), 2)'
     ws.cell(r, 20).value = f'=IF(S{r}>0, ROUNDUP(S{r}/(5*0.96), 0), 0)'
     ws.cell(r, 21).value = f'=R{r}+T{r}'
     
-    # Cơ chế điều phối 3 Lớp cho Cont 40ft
-    ws.cell(r, 22).value = f'=ROUND(R{r}*70%, 0)'
-    ws.cell(r, 23).value = f'=MIN(ROUNDUP(R{r}*0.2, 0), MAX(0, R{r} - V{r}))'
+    # Cơ chế điều phối 3 Lớp cho Cont 40ft (Đảm bảo >= 0)
+    ws.cell(r, 22).value = f'=MAX(0, ROUND(R{r}*70%, 0))'
+    ws.cell(r, 23).value = f'=MAX(0, MIN(ROUNDUP(R{r}*0.2, 0), MAX(0, R{r} - V{r})))'
     ws.cell(r, 24).value = f'=IF(C{r}>20, "Hủy slot (Mưa > 20mm)", "Kích hoạt")'
     ws.cell(r, 25).value = f'=IF(C{r}>20, 0, W{r})'
     ws.cell(r, 26).value = f'=IF(C{r}>20, W{r}*0.2*AF{r}, 0)' # Cọc 20%

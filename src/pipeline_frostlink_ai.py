@@ -97,7 +97,7 @@ df = load_and_audit_data()
 
 # BIỂU ĐỒ 1: TÁC ĐỘNG THỜI TIẾT ĐẾN SẢN LƯỢNG THU HOẠCH (92 NGÀY)
 def plot_weather_yield_impact(df):
-    fig, ax1 = plt.subplots(figsize=(15, 6.5), dpi=300)
+    fig, ax1 = plt.subplots(figsize=(15, 7.0), dpi=300)
     x = np.arange(len(df))
     
     color_yield = '#1565C0'
@@ -105,19 +105,29 @@ def plot_weather_yield_impact(df):
     ax1.set_xlabel('Ngày trong mùa vụ (Tháng 5, 6, 7/2026 - Lục Ngạn, Bắc Giang)', fontsize=12, fontweight='bold', labelpad=10)
     ax1.set_ylabel('Sản lượng thu hoạch (Tấn/ngày)', color=color_yield, fontsize=12, fontweight='bold')
     ax1.tick_params(axis='y', labelcolor=color_yield)
+    ax1.set_ylim(0, 880)
     
     step = 7
     ax1.set_xticks(x[::step])
     ax1.set_xticklabels(df['Day'].iloc[::step], rotation=45, fontsize=9.5)
-    ax1.grid(True, linestyle=':', alpha=0.6)
+    ax1.grid(True, linestyle=':', alpha=0.5)
     
-    # Ranh giới 3 tháng
+    # Ranh giới & Màu nền 3 tháng
+    ax1.axvspan(0, 31, color='#e8f5e9', alpha=0.30)
+    ax1.axvspan(31, 61, color='#ffebee', alpha=0.30)
+    ax1.axvspan(61, 92, color='#fff3e0', alpha=0.30)
     ax1.axvline(31, color='#757575', linestyle='--', linewidth=1.2, alpha=0.8)
     ax1.axvline(61, color='#757575', linestyle='--', linewidth=1.2, alpha=0.8)
-    ax1.text(15, 800, 'THÁNG 5\n(Đầu vụ / Vải sớm)', ha='center', fontsize=11, fontweight='bold', color='#2e7d32', bbox=dict(boxstyle="round,pad=0.3", fc="#e8f5e9", ec="#2e7d32", alpha=0.9))
-    ax1.text(46, 800, 'THÁNG 6\n(Chính vụ ~600T/ngày)', ha='center', fontsize=11, fontweight='bold', color='#c62828', bbox=dict(boxstyle="round,pad=0.3", fc="#ffebee", ec="#c62828", alpha=0.9))
-    ax1.text(76, 800, 'THÁNG 7\n(Cuối vụ / Vét vườn)', ha='center', fontsize=11, fontweight='bold', color='#e65100', bbox=dict(boxstyle="round,pad=0.3", fc="#fff3e0", ec="#e65100", alpha=0.9))
     
+    # Dải tiêu đề phân đoạn mùa vụ ở đỉnh biểu đồ (nằm gọn trong đồ thị tại y = 825)
+    ax1.text(15.5, 825, 'THÁNG 5: ĐẦU VỤ (VẢI SỚM)', ha='center', va='center', fontsize=10.5, fontweight='bold', color='#1b5e20', 
+             bbox=dict(boxstyle="round,pad=0.4", fc="#ffffff", ec="#2e7d32", lw=1.2, alpha=0.95))
+    ax1.text(46.0, 825, 'THÁNG 6: CHÍNH VỤ CAO ĐIỂM (~500 - 650T/ngày)', ha='center', va='center', fontsize=10.5, fontweight='bold', color='#b71c1c', 
+             bbox=dict(boxstyle="round,pad=0.4", fc="#ffffff", ec="#c62828", lw=1.2, alpha=0.95))
+    ax1.text(76.5, 825, 'THÁNG 7: CUỐI VỤ (VÉT VƯỜN)', ha='center', va='center', fontsize=10.5, fontweight='bold', color='#e65100', 
+             bbox=dict(boxstyle="round,pad=0.4", fc="#ffffff", ec="#e65100", lw=1.2, alpha=0.95))
+    
+    # Trục mưa bên phải
     ax2 = ax1.twinx()
     color_rain = '#D32F2F'
     bars_rain = ax2.bar(x, df['Rain'], color=color_rain, alpha=0.40, width=0.6, label='Lượng mưa trong ngày (mm)')
@@ -125,22 +135,23 @@ def plot_weather_yield_impact(df):
     ax2.tick_params(axis='y', labelcolor=color_rain)
     ax2.set_ylim(0, 110)
     
-    # Chú thích các đợt bão lớn
-    major_storms = df[df['Rain'] >= 50]
+    # Chú thích ngày mưa lớn
+    major_storms = df[df['Rain'] >= 25]
     for idx, row in major_storms.iterrows():
-        ax1.annotate(f"Bão {row['Rain']:.0f}mm\nHái giảm còn {row['Harvest']:.0f}T", 
+        ax1.annotate(f"Mưa {row['Rain']:.0f}mm\nHái: {row['Harvest']:.0f}T", 
                      xy=(idx, row['Harvest']), 
-                     xytext=(idx - 2.5, row['Harvest'] + 80),
-                     arrowprops=dict(facecolor='#d32f2f', shrink=0.08, width=1.5, headwidth=6),
-                     bbox=dict(boxstyle="round,pad=0.3", fc="#ffebee", ec="#d32f2f", lw=1),
-                     fontsize=8.5, fontweight='bold')
+                     xytext=(idx - 2.5, row['Harvest'] + 70),
+                     arrowprops=dict(facecolor='#d32f2f', shrink=0.08, width=1.5, headwidth=5),
+                     bbox=dict(boxstyle="round,pad=0.25", fc="#ffebee", ec="#d32f2f", lw=1),
+                     fontsize=8, fontweight='bold')
                      
+    # Legend đặt tại góc trái nhưng ở dưới nhãn Tháng 5, không hề bị chồng lấn
     lines = line_yield + [bars_rain]
     labels = [l.get_label() for l in lines]
-    ax1.legend(lines, labels, loc='upper left', frameon=True, facecolor='white', framealpha=0.9)
+    ax1.legend(lines, labels, loc='upper left', bbox_to_anchor=(0.015, 0.88), frameon=True, facecolor='white', framealpha=0.95)
     
     plt.title('BIỂU ĐỒ 1: TƯƠNG QUAN LƯỢNG MƯA VÀ SẢN LƯỢNG THU HOẠCH VẢI THIỀU QUA 3 THÁNG MÙA VỤ\n(Khảo sát thực địa Lục Ngạn: Mưa dông bão làm gãy đổ sản lượng thu hoạch đột ngột)', 
-              fontsize=13, fontweight='bold', pad=15)
+              fontsize=13, fontweight='bold', pad=20)
     plt.tight_layout()
     out_path = os.path.join(FIGURES_DIR, 'eda_01_weather_yield_impact.png')
     plt.savefig(out_path)
@@ -149,15 +160,15 @@ def plot_weather_yield_impact(df):
 
 # BIỂU ĐỒ 2: CƠ CHẾ ĐIỀU PHỐI CÔNG SUẤT 3 LỚP CHO CONT 40FT & XE 5T (92 NGÀY)
 def plot_three_tier_dispatch(df):
-    fig, ax = plt.subplots(figsize=(15, 6.8), dpi=300)
+    fig, ax = plt.subplots(figsize=(15, 7.2), dpi=300)
     x = np.arange(len(df))
     
-    l1 = df['L1_Cont40']
-    l2_run = df['L2_Run_Cont40']
-    l2_cancel = df['L2_Plan_Cont40'] - df['L2_Run_Cont40']
-    l3 = df['L3_Spot_Cont40']
-    actual_cont40 = df['Actual_Cont40']
-    truck5_run = df['Truck5_Run']
+    l1 = np.maximum(0, df['L1_Cont40'])
+    l2_run = np.maximum(0, df['L2_Run_Cont40'])
+    l2_cancel = np.maximum(0, df['L2_Plan_Cont40'] - df['L2_Run_Cont40'])
+    l3 = np.maximum(0, df['L3_Spot_Cont40'])
+    actual_cont40 = np.maximum(0, df['Actual_Cont40'])
+    truck5_run = np.maximum(0, df['Truck5_Run'])
     
     b1 = ax.bar(x, l1, color='#1565c0', width=0.75, label='Lớp 1: Cam kết cứng 70% Cont 40ft (Firm Booking - Giá gốc 9tr)')
     b2 = ax.bar(x, l2_run, bottom=l1, color='#42a5f5', width=0.75, label='Lớp 2: Quyền chọn linh hoạt Cont 40ft (Flex Run - Cọc 20%)')
@@ -165,36 +176,51 @@ def plot_three_tier_dispatch(df):
                 label='Lớp 2: Hủy slot Cont 40ft khi bão (Mất cọc 20% tránh phạt rỗng 2.7tr)')
     b4 = ax.bar(x, l3, bottom=l1 + l2_run + l2_cancel, color='#ffa726', width=0.75, label='Lớp 3: Giao ngay bù đắp Cont 40ft (Spot Market Buffer)')
     b5 = ax.bar(x, truck5_run, bottom=l1 + l2_run + l2_cancel + l3, color='#ab47bc', alpha=0.75, width=0.75,
-                label='Xe 5T: Giải tỏa vải dư lẻ LTL (Buffer Truck - 4.75T @ 3.5tr)')
+                label='Xe 5T: Giải tỏa vải dư lẻ LTL (Buffer Truck - 4.80T @ 3.5tr)')
     
     line_act = ax.plot(x, actual_cont40, color='#000000', marker='o', linewidth=2.2, markersize=4, 
                        label='Nhu cầu thực tế Cont 40ft (Actual Conts)', zorder=5)
     
     ax.set_xlabel('Ngày trong vụ mùa (Tháng 5, 6, 7/2026)', fontsize=12, fontweight='bold', labelpad=10)
     ax.set_ylabel('Số lượng phương tiện lạnh (Xe/ngày)', fontsize=12, fontweight='bold')
+    ax.set_ylim(bottom=0, top=52)
+    
     step = 7
     ax.set_xticks(x[::step])
     ax.set_xticklabels(df['Day'].iloc[::step], rotation=45, fontsize=9.5)
     ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    ax.grid(True, linestyle=':', alpha=0.6, axis='y')
+    ax.grid(True, linestyle=':', alpha=0.5, axis='y')
     
-    # Ranh giới tháng
+    # Ranh giới tháng & background tint
+    ax.axvspan(0, 31, color='#e8f5e9', alpha=0.20)
+    ax.axvspan(31, 61, color='#ffebee', alpha=0.20)
+    ax.axvspan(61, 92, color='#fff3e0', alpha=0.20)
     ax.axvline(31, color='#757575', linestyle='--', linewidth=1.2, alpha=0.8)
     ax.axvline(61, color='#757575', linestyle='--', linewidth=1.2, alpha=0.8)
     
+    # Nhãn tháng trên EDA 2 đặt gọn gàng ở đỉnh đồ thị (y = 48.5)
+    ax.text(15.5, 48.5, 'THÁNG 5: ĐẦU VỤ (VẢI SỚM)', ha='center', va='center', fontsize=10, fontweight='bold', color='#1b5e20', 
+            bbox=dict(boxstyle="round,pad=0.35", fc="#ffffff", ec="#2e7d32", lw=1.2, alpha=0.95))
+    ax.text(46.0, 48.5, 'THÁNG 6: CHÍNH VỤ CAO ĐIỂM', ha='center', va='center', fontsize=10, fontweight='bold', color='#b71c1c', 
+            bbox=dict(boxstyle="round,pad=0.35", fc="#ffffff", ec="#c62828", lw=1.2, alpha=0.95))
+    ax.text(76.5, 48.5, 'THÁNG 7: CUỐI VỤ (VÉT VƯỜN)', ha='center', va='center', fontsize=10, fontweight='bold', color='#e65100', 
+            bbox=dict(boxstyle="round,pad=0.35", fc="#ffffff", ec="#e65100", lw=1.2, alpha=0.95))
+    
+    # Chú thích ngày hủy slot Lớp 2
     rain_cancel_days = df[l2_cancel > 0]
     for idx, row in rain_cancel_days.iterrows():
-        if row['Rain'] >= 50:
-            ax.annotate('HỦY CỌC LỚP 2\nTránh phạt rỗng 2.7tr', 
-                        xy=(idx, row['Total_Cont40_Run'] + 0.5), 
-                        xytext=(idx - 3.5, row['Total_Cont40_Run'] + 6),
-                        arrowprops=dict(facecolor='#d32f2f', shrink=0.08, width=1.5, headwidth=6),
-                        bbox=dict(boxstyle="round,pad=0.3", fc="#ffebee", ec="#d32f2f", lw=1.2),
-                        fontsize=8, fontweight='bold')
+        if row['Rain'] >= 20:
+            total_h = l1.iloc[idx] + l2_run.iloc[idx] + l2_cancel.iloc[idx] + l3.iloc[idx] + truck5_run.iloc[idx]
+            ax.annotate(f"HỦY LỚP 2\n(Mưa {row['Rain']:.0f}mm)", 
+                        xy=(idx, total_h + 0.5), 
+                        xytext=(idx - 3.5, total_h + 5),
+                        arrowprops=dict(facecolor='#d32f2f', shrink=0.08, width=1.2, headwidth=5),
+                        bbox=dict(boxstyle="round,pad=0.25", fc="#ffebee", ec="#d32f2f", lw=1),
+                        fontsize=7.5, fontweight='bold')
                         
-    ax.legend(loc='upper left', frameon=True, facecolor='white', framealpha=0.92, fontsize=9.5)
+    ax.legend(loc='upper left', bbox_to_anchor=(0.015, 0.88), frameon=True, facecolor='white', framealpha=0.95, fontsize=9.0)
     plt.title('BIỂU ĐỒ 2: CƠ CHẾ ĐIỀU PHỐI CÔNG SUẤT VẬN TẢI LẠNH 3 LỚP (CONT 40FT & XE 5T)\n(Hủy slot Lớp 2 khi có bão + Xe tải lạnh 5T gom vét hàng lẻ giúp tối ưu chi phí toàn chuỗi)', 
-              fontsize=13, fontweight='bold', pad=15)
+              fontsize=13, fontweight='bold', pad=20)
     plt.tight_layout()
     out_path = os.path.join(FIGURES_DIR, 'eda_02_three_tier_dispatch.png')
     plt.savefig(out_path)
